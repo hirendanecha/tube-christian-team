@@ -1,22 +1,25 @@
+const loginUrl = 'https://christian.team/login';
+const logoutUrl = 'https://christian.team/logout';
+const frontendUrl = 'https://tube.christian.team/';
+const backendUrl =  'https://api.christian.team/';
+
 // const frontendUrl = 'http://localhost:4200/';
 // const backendUrl = 'http://localhost:8080/';
 // const loginUrl = 'http://localhost:4200/login';
-
-const frontendUrl = 'https://video.healing.tube/';
-const backendUrl = 'https://api.healing.tube/';
-const loginUrl = 'https://healing.tube/login';
-const logoutUrl = 'https://healing.tube/logout';
-
+const wasabiUrl = 'https://s3.us-east-1.wasabisys.com/christian-team'
 
 
 export const environment = {
-  production: true,
+  production: false,
   frontendUrl: frontendUrl,
   backendUrl: backendUrl,
   loginUrl: loginUrl,
   apiUrl: `${backendUrl}api/v1/`,
-  domain: '.healing.tube',
+  domain: '.christian.team',
+  wasabiUrl: wasabiUrl,
   socketUrl: `${backendUrl}`,
   conferenceUrl: 'https://facetime.tube/',
   logoutUrl: logoutUrl
+
 };
+

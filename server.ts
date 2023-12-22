@@ -78,14 +78,14 @@ export function app(): express.Express {
         }
         const params = req.params[0];
         var seo: any = {
-          title: 'Healing Tube',
+          title: 'Christian Tube',
           description:
-            'The Umbrella platform for All freedom based projects worldwide',
+            'The Christian Social platform to unite Christian worldwide',
           image:
-            'https://video.healing.tube/assets/banner/Healing-Tube-Logo.jpg',
-          site: 'https://video.healing.tube/',
-          url: 'https://video.healing.tube' + params,
-          keywords: 'Healing Tube',
+            'https://tube.christian.team/assets/banner/Healing-Tube-Logo.jpg',
+          site: 'https://tube.christian.team/',
+          url: 'https://tube.christian.team' + params,
+          keywords: 'ChristianTube',
         };
         if (
           params.indexOf('channel/') > -1
