@@ -82,7 +82,7 @@ export function app(): express.Express {
           description:
             'The Christian Social platform to unite Christian worldwide',
           image:
-            'https://tube.christian.team/assets/banner/Healing-Tube-Logo.jpg',
+            'https://tube.christian.team/assets/Healing-Tube-Logo.png',
           site: 'https://tube.christian.team/',
           url: 'https://tube.christian.team' + params,
           keywords: 'ChristianTube',
@@ -126,7 +126,7 @@ export function app(): express.Express {
           const pdhtml = document.createElement('div');
           pdhtml.innerHTML = post?.postdescription || post?.metadescription;
           const talent = {
-            name: post?.title || post?.albumname || 'Healing.Tube Post',
+            name: post?.title || post?.albumname || 'ChristianTube Post',
             description: pdhtml?.textContent || 'Post content',
             image: post?.thumbfilename || post?.metaimage || post?.imageUrl,
           };
