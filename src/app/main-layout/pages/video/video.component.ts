@@ -70,6 +70,7 @@ export class VideoComponent implements OnInit, OnChanges {
   // webUrl = environment.webUrl;
   hasMoreData = false;
   activePage: number;
+  isTheaterModeOn: boolean = false;
   commentMessageTags = [];
   commentMessageInputValue: string = '';
   constructor(
@@ -233,11 +234,21 @@ export class VideoComponent implements OnInit, OnChanges {
       this.player = jwplayer('jwVideo-' + id).setup({
         ...config,
       });
+      const isPhoneView = window.innerWidth <= 768;
+      if (!isPhoneView) {    
+        const buttonId = 'theater-mode-button';
+        const iconPath = 'assets/img/theater-mode.png';
+        const tooltipText = 'Theater Mode';
+        jwplayer('jwVideo-' + id).addButton(iconPath, tooltipText, this.buttonClickAction.bind(this), buttonId);
+      }
       this.player.load();
       console.log('>>>>>', this.player);
 
       if (this.player) clearInterval(i);
     }, 1000);
+  }
+  buttonClickAction() {
+    this.isTheaterModeOn = !this.isTheaterModeOn
   }
 
   onPostFileSelect(event: any, type: string): void {
