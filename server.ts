@@ -78,14 +78,14 @@ export function app(): express.Express {
         }
         const params = req.params[0];
         var seo: any = {
-          title: 'Christian Tube',
+          title: 'Christian.tube',
           description:
             'The Christian Social platform to unite Christian worldwide',
           image:
             'https://tube.christian.team/assets/Healing-Tube-Logo.png',
           site: 'https://tube.christian.team/',
           url: 'https://tube.christian.team' + params,
-          keywords: 'ChristianTube',
+          keywords: 'Christian.tube',
         };
         if (
           params.indexOf('channel/') > -1
@@ -126,7 +126,7 @@ export function app(): express.Express {
           const pdhtml = document.createElement('div');
           pdhtml.innerHTML = post?.postdescription || post?.metadescription;
           const talent = {
-            name: post?.title || post?.albumname || 'ChristianTube Post',
+            name: post?.title || post?.albumname || 'Christian.tube Post',
             description: pdhtml?.textContent || 'Post content',
             image: post?.thumbfilename || post?.metaimage || post?.imageUrl,
           };

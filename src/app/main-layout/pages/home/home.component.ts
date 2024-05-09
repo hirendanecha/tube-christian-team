@@ -69,7 +69,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
       }
     });
     const data = {
-      title: `ChristianTube`,
+      title: `Christian.tube`,
       description: '',
     };
     this.seoService.updateSeoMetaData(data);
@@ -118,7 +118,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
           // localStorage.setItem('channelId', this.channelData.id);
           // console.log(this.channelData);
           const data = {
-            title: `ChristianTube ${this.channelData?.firstname}`,
+            title: `Christian.tube ${this.channelData?.firstname}`,
             url: `${location.href}`,
             description: '',
           };
@@ -139,7 +139,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
         if (res.data.length) {
           this.channelData = res.data[0];
           const data = {
-            title: `ChristianTube ${this.channelData.firstname}`,
+            title: `Christian.tube ${this.channelData.firstname}`,
             url: `${location.href}`,
             description: '',
           };
