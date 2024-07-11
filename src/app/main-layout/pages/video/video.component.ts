@@ -15,6 +15,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { NgbDropdown, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { ReplyCommentModalComponent } from 'src/app/@shared/components/reply-comment-modal/reply-comment-modal.component';
+import { SharePostModalComponent } from 'src/app/@shared/modals/share-post-modal/share-post-modal.component';
 import { AuthService } from 'src/app/@shared/services/auth.service';
 import { CommonService } from 'src/app/@shared/services/common.service';
 import { SeoService } from 'src/app/@shared/services/seo.service';
@@ -140,7 +141,7 @@ export class VideoComponent implements OnInit, OnChanges {
   }
 
   getPostDetailsById(id): void {
-    this.commonService.get(`${this.apiUrl}/post/${id}`).subscribe({
+    this.commonService.get(`${this.apiUrl}/post/${id}?profileId=${this.profileId}`).subscribe({
       next: (res) => {
         this.spinner.hide();
         // console.log(res);
@@ -725,5 +726,88 @@ export class VideoComponent implements OnInit, OnChanges {
     const div = document.createElement('div');
     div.innerHTML = html;
     return div.innerText;
+  }
+  shareOnNF(post: any) {
+    const modalRef = this.modalService.open(SharePostModalComponent, {
+      centered: true,
+    });
+    modalRef.componentInstance.title = 'Share post on Home';
+    modalRef.componentInstance.confirmButtonLabel = 'Share';
+    modalRef.componentInstance.cancelButtonLabel = 'Cancel';
+    modalRef.componentInstance.post = post;
+    modalRef.result.then((res) => {
+      if (res.profileid) {
+        console.log(res);
+        this.socketService?.createOrEditPost(res);
+        this.toastService.success('Post share successfully');
+      } else {
+        if (res.profileid) {
+          this.toastService.warring('Something went wrong please try again!');
+        }
+      }
+    });
+  }
+  channelSubscribe(subscribe) {
+    const data = {
+      ProfileId: this.profileId,
+      SubscribeChannelId: this.videoDetails.channelId,
+      channelUserProfileId: this.videoDetails.profileid,
+    };
+    if (!subscribe) {
+      this.commonService.subscribeChannel(data).subscribe({
+        next: (res: any) => {
+          this.toastService.success(res.message);
+          return this.videoDetails['isSubscribed'] = true;
+        },
+        error: (error) => {
+          console.log(error);
+        },
+      });
+    } else {
+      this.commonService.unsubscribeChannel(data).subscribe({
+        next: (res: any) => {
+          this.toastService.success(res.message);
+          return this.videoDetails['isSubscribed'] = false;
+        },
+        error: (error) => {
+          console.log(error);
+        },
+      });
+    }
+  }
+
+  reactLikeOnPost(post: any) {
+    if (post.react != 'L') {
+      post.likescount = post?.likescount + 1;
+      post.totalReactCount = post?.totalReactCount + 1;
+      post.react = 'L';
+    }
+    const data = {
+      postId: post.id,
+      profileId: this.profileId,
+      likeCount: post.likescount,
+      actionType: 'L',
+      toProfileId: post.profileid,
+    };
+    this.socketService.likeFeedPost(data, (res) => {
+      return;
+    });
+  }
+
+  dislikeFeedPost(post) {
+    if (post.react == 'L' && post.likescount > 0) {
+      post.likescount = post.likescount - 1;
+      post.react = null;
+      post.totalReactCount = post.totalReactCount - 1;
+    }
+    const data = {
+      postId: post.id,
+      profileId: this.profileId,
+      likeCount: post.likescount,
+      toProfileId: post.profileid,
+    };
+    this.socketService.likeFeedPost(data, (res) => {
+      return;
+    });
   }
 }

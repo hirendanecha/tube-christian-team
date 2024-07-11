@@ -79,7 +79,7 @@ export class VideoPostModalComponent implements OnInit, AfterViewInit {
   ) {
     this.postData.profileid = JSON.parse(
       this.authService.getUserData() as any
-    )?.Id;
+    )?.profileId;
     // console.log('profileId', this.postData.profileid);
     // console.log('editData', this.data);
 
