@@ -36,12 +36,14 @@ export class CommonService {
     const formData: FormData = new FormData();
     formData.append('file', files);
     console.log(formData);
+    const headers = new HttpHeaders({ timeout: `${1500000}` });
     const req =
       new HttpRequest(
         'POST',
         `${this.apiUrl}posts/upload`,
         formData,
         {
+          headers: headers,
           reportProgress: true,
           responseType: 'json',
         }
@@ -133,11 +135,11 @@ export class CommonService {
 
   getImageUrl(url: string): Observable<Blob> {
     return this.http.get(url, {
-      responseType: "blob",
+      responseType: 'blob',
     });
   }
 
-  deleteComments() { }
+  deleteComments() {}
 
   getNotificationList(id: number, data = {}): Observable<any> {
     return this.http.post(`${this.apiUrl}customers/get-notification/${id}`, data);
@@ -161,7 +163,7 @@ export class CommonService {
 
   getNotification(id): Observable<any> {
     return this.http.get(
-      `${this.apiUrl}customers/notification/${id}`
+      `${this.apiUrl}customers/notification/${id}&q=${Date.now()}`
     );
   }
 }

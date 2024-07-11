@@ -19,6 +19,7 @@ import { VideoPostModalComponent } from '../../modals/video-post-modal/video-pos
 import { CreateChannelComponent } from '../../modals/create-channel/create-channel-modal.component';
 import { ConferenceLinkComponent } from '../../modals/create-conference-link/conference-link-modal.component';
 import { ShareService } from '../../services/share.service';
+import { Observable, map } from 'rxjs';
 
 @Component({
   selector: 'app-lf-dashboard',
@@ -40,6 +41,8 @@ export class LfDashboardComponent implements OnInit {
   channelId: any;
   channelData: any = {};
   channelList: any = [];
+  mediaApproved: boolean;
+  userId: number;
 
   constructor(
     private route: ActivatedRoute,
@@ -69,7 +72,7 @@ export class LfDashboardComponent implements OnInit {
       this.channelId = newParams['channelId'];
       delete newParams['channelId']
       const navigationExtras: NavigationExtras = {
-        queryParams: newParams
+        queryParams: newParams,
       };
       this.router.navigate([], navigationExtras);
     }
@@ -83,7 +86,12 @@ export class LfDashboardComponent implements OnInit {
     if (!this.channelId) {
       this.channelId = +localStorage.getItem('channelId');
     }
-    this.getChannels();
+    if (this.userId) {
+      this.getChannels();
+    }
+    this.shareService.mediaApproved$.subscribe(value => {
+      this.mediaApproved = value;
+    });    
 
   }
 
@@ -109,7 +117,7 @@ export class LfDashboardComponent implements OnInit {
 
   getSearchData(searchText): void {
     this.searchTextEmitter?.emit(searchText);
-    this.searchText = ''
+    this.searchText = '';
   }
 
   openProfile(Id): void {
@@ -123,19 +131,36 @@ export class LfDashboardComponent implements OnInit {
   }
 
   openVideoUploadPopUp(): void {
-    const modalRef = this.modalService.open(VideoPostModalComponent, {
-      centered: true,
-      size: 'lg',
-    });
-    modalRef.componentInstance.title = `Upload Video`;
-    modalRef.componentInstance.confirmButtonLabel = 'Upload Video';
-    modalRef.componentInstance.cancelButtonLabel = 'Cancel';
-    modalRef.componentInstance.channelList = this.channelList;
-    modalRef.result.then((res) => {
-      window.location.reload();
-      // console.log(res);
-    });
+    const openModal = () => {
+      const modalRef = this.modalService.open(VideoPostModalComponent, {
+        centered: true,
+        size: 'lg',
+      });
+      modalRef.componentInstance.title = `Upload Video`;
+      modalRef.componentInstance.confirmButtonLabel = 'Upload Video';
+      modalRef.componentInstance.cancelButtonLabel = 'Cancel';
+      modalRef.componentInstance.channelList = this.channelList;
+      modalRef.result.then((res) => {
+        if (res === 'success') {
+          window.location.reload();
+        }
+      });
+    };
+  
+    if (!this.channelList || !this.channelList.length) {
+      this.userId = JSON.parse(this.authService.getUserData() as any)?.UserID;
+      const apiUrl = `${environment.apiUrl}channels/get-channels/${this.userId}`;
+      this.commonService.get(apiUrl).subscribe(
+        (res) => {
+          this.channelList = res.data;
+          openModal();
+        }
+      )
+    } else {
+      openModal();
+    }
   }
+
 
   createChannel(): void {
     const modalRef = this.modalService.open(CreateChannelComponent, {
@@ -166,12 +191,14 @@ export class LfDashboardComponent implements OnInit {
   }
 
   getChannels(): void {
-    const userId = JSON.parse(this.authService.getUserData() as any)?.UserID;
-    const apiUrl = `${environment.apiUrl}channels/get-channels/${userId}`;
+    this.userId = JSON.parse(this.authService.getUserData() as any)?.UserID;
+    const apiUrl = `${environment.apiUrl}channels/get-channels/${this.userId}`;
     this.commonService.get(apiUrl).subscribe({
       next: (res) => {
         this.channelList = res.data;
-        console.log(this.channelList);
+        let channelIds = this.channelList.map(e => e.id);
+        localStorage.setItem('get-channels', JSON.stringify(channelIds));
+        // console.log(this.channelList);
       },
       error(err) {
         console.log(err);

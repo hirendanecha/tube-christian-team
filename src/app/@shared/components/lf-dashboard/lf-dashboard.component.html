@@ -79,7 +79,7 @@
       </div>
     </ng-container>
     <div
-      *ngIf="isUserMediaApproved() && channelList.length"
+      *ngIf="mediaApproved && channelId"
       class="d-flex c-bg-color py-2 justify-content-evenly justify-content-md-center column-gap-2 column-gap-xxl-4 col-12 col-md-12 col-lg-8 m-auto mt-4 my-xxl-4 justify-content-center mb-view-left-txt"
     >
       <!-- routerLink="/channels" -->
@@ -94,6 +94,7 @@
       <div ngbDropdown class="d-flex flex-column flex-sm-row align-items-center gap-2 d-inline-block btn-group float-end right-action">
         <fa-icon [icon]="['fas', 'user']" [fixedWidth]="true" />
         <a
+          (click)="!channelList.length ? getChannels() : null"
           class="d-block d-md-flex gap-2 align-items-center c-text flex-wrap justify-content-center"
           id="userDropdown"
           role="button"

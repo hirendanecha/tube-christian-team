@@ -90,7 +90,7 @@
               </div>
             </div>
             <div
-              class="single-video-author box mb-3"
+              class="single-video-author box mb-3 cursor"
               *ngIf="videoDetails?.unique_link"
             >
               <img
@@ -298,7 +298,7 @@
                             class="reviews-members-footer d-flex align-items-center"
                           >
                             <button
-                              class="total-like me-2 cursor"
+                              class="total-like me-2 cursor  btn btn-outline-primary"
                               (click)="
                                 comment.react == 'L'
                                   ? disLikeComments(comment)
@@ -315,7 +315,7 @@
                               }}&nbsp;Likes
                             </button>
                             <button
-                              class="total-like cursor"
+                              class="total-like cursor  btn btn-outline-primary"
                               [disabled]="!sharedService.getCredentials()"
                               (click)="showReplySection(comment?.id)"
                             >
@@ -459,7 +459,7 @@
                                     <div class="reviews-members-footer">
                                       <!-- <a class="total-like" -->
                                       <button
-                                        class="total-like text-primary cursor"
+                                        class="total-like text-primary cursor  btn btn-outline-primary"
                                         [disabled]="
                                           !sharedService.getCredentials()
                                         "

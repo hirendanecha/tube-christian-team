@@ -17,6 +17,7 @@ export class ShareService {
   userChannelName: string
   isUserAuthenticated: Subject<boolean> = new BehaviorSubject<boolean>(false);
   public _credentials: any = {};
+  mediaApproved$: any;
 
   constructor(
     private commonService: CommonService,
