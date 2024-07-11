@@ -71,9 +71,9 @@ export class VideoComponent implements OnInit, OnChanges {
   // webUrl = environment.webUrl;
   hasMoreData = false;
   activePage: number;
-  isTheaterModeOn: boolean = false;
   commentMessageTags = [];
   commentMessageInputValue: string = '';
+  isTheaterModeOn: boolean = false;
   constructor(
     private commonService: CommonService,
     private router: Router,
@@ -85,7 +85,7 @@ export class VideoComponent implements OnInit, OnChanges {
     private modalService: NgbModal,
     private spinner: NgxSpinnerService,
     public sharedService: ShareService,
-    private seoService:SeoService,
+    private seoService: SeoService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     this.profileId = JSON.parse(this.authService.getUserData() as any)?.Id || null;
@@ -146,7 +146,7 @@ export class VideoComponent implements OnInit, OnChanges {
         this.spinner.hide();
         // console.log(res);
         this.videoDetails = res[0];
-       
+
         const data = {
           title: `Christian.tube ${this.videoDetails.albumname}`,
           description: this.videoDetails.postdescription,
@@ -205,7 +205,6 @@ export class VideoComponent implements OnInit, OnChanges {
       if (this.player) {
         this.player.remove();
       }
-      // console.log('enter', id);
       const isPhone = window.innerWidth <= 768;
       const config = {
         file: this.videoDetails?.streamname,
@@ -214,7 +213,6 @@ export class VideoComponent implements OnInit, OnChanges {
         autostart: false,
         volume: 50,
         height: isPhone ? '270px' : '660px',
-        // height: '640px',
         width: 'auto',
         pipIcon: 'disabled',
         preload: 'metadata',
@@ -244,7 +242,7 @@ export class VideoComponent implements OnInit, OnChanges {
       }
       this.player.load();
       console.log('>>>>>', this.player);
-
+  
       if (this.player) clearInterval(i);
     }, 1000);
   }
@@ -569,7 +567,9 @@ export class VideoComponent implements OnInit, OnChanges {
           this.commentData.postId = res?.postId;
           this.commentData.profileId = res?.profileId;
           this.commentData['id'] = res?.id;
-          this.commentData.parentCommentId = res?.parentCommentId;
+          if (res?.parentCommentId) {
+            this.commentData.parentCommentId = res?.parentCommentId;
+          }
           this.addComment();
         }
       });
