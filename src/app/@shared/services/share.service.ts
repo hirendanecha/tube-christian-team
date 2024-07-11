@@ -18,7 +18,7 @@ export class ShareService {
   isUserAuthenticated: Subject<boolean> = new BehaviorSubject<boolean>(false);
   public _credentials: any = {};
   private mediaApprovedSubject = new BehaviorSubject<boolean>(false);
-  mediaApproved$ = this.mediaApprovedSubject.asObservable();y;
+  mediaApproved$ = this.mediaApprovedSubject.asObservable();
 
   constructor(
     private commonService: CommonService,
