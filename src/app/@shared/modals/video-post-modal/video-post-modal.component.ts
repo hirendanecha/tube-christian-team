@@ -281,10 +281,10 @@ export class VideoPostModalComponent implements OnInit, AfterViewInit {
           // this.postData = null;
           if (this.postData.id) {
             this.toastService.success('Post updated successfully');
-            this.activeModal.close();
+            this.activeModal.close('success');
           } else {
             this.toastService.success('Post created successfully');
-            this.activeModal.close();
+            this.activeModal.close('success');
           }
         },
         error: (error) => {

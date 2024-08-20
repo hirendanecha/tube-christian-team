@@ -9,7 +9,7 @@
       >
         <fa-icon [icon]="['fas', 'bars']" [fixedWidth]="true" />
       </button>
-      <a class="navbar-brand ms-2 me-1" routerLink="/home"
+      <a class="navbar-brand d-none d-sm-flex ms-2 me-1" routerLink="/home"
         ><img
           class="img-fluid h-40-px rounded"
           alt=""
@@ -17,7 +17,7 @@
       /></a>
     </div>
     <ul
-      class="navbar-nav d-sm-flex flex-row justify-content-around align-self-center ms-auto m-lg-auto gap-3 gap-xl-20 gap-lg-10 py-0 nav-btn"
+      class="navbar-nav d-sm-flex flex-row justify-content-around align-self-center m-sm-auto gap-3 gap-xl-20 gap-lg-10 py-0 nav-btn"
     >
       <li title="Christian Home" class="cursor">
         <a href="https://christian.team/home" target="_blank">
@@ -153,9 +153,15 @@
   <ng-template #noCredentials>
     <div class="d-flex align-items-center justify-content-between w-100 m-2">
       <div class="d-flex">
+        <button
+        class="btn btn-link btn-sm text-secondary ms-1"
+        (click)="toggleSidebar()"
+      >
+        <fa-icon [icon]="['fas', 'bars']" [fixedWidth]="true" />
+      </button>
         <a class="navbar-brand ms-2 me-1" routerLink="/home"
           ><img
-            class="img-fluid h-40-px rounded"
+            class="img-fluid h-32-px rounded"
             alt=""
             src="/assets/Healing-Tube-Logo.png"
         /></a>
