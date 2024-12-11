@@ -30,7 +30,7 @@
             <div
               class="font-20-px mx-2 cursor"
               *ngIf="video.profileid === profileid"
-              (click)="videoEdit(video)"
+              (click)="videoEdit(video, $event)"
             >
               <fa-icon [icon]="['fas', 'edit']" [fixedWidth]="true" />
             </div>

@@ -124,9 +124,9 @@ export class VideoCardComponent implements OnInit, AfterViewInit {
     window.location.href = url;
   }
 
-  videoEdit(video: any): void {
-    // console.log(video);
-
+  videoEdit(video: any, event: MouseEvent): void {
+    event.stopPropagation();
+    event.preventDefault();
     const modalRef = this.modalService.open(VideoPostModalComponent, {
       centered: true,
       size: 'lg',
