@@ -29,7 +29,9 @@ export class UploadComponent implements OnInit {
     private spinner: NgxSpinnerService,
     public authService: AuthService
   ) {
-    this.useDetails = JSON.parse(this.authService.getUserData() as any);
+    this.authService.loggedInUser$.subscribe((data) => {
+      this.useDetails = data;
+    });
     if (this.useDetails?.MediaApproved === 1) {
       return;
     } else {

@@ -10,6 +10,6 @@ import { RandomAdvertisementUrlPipe } from "./random-advertisement.pipe";
 @NgModule({
   declarations: [SafePipe, GetImageUrlPipe, CommaSeperatePipe, TimeDurationPipe, timeDurationWithSec, DateDayPipe, NoSanitizePipe, RandomAdvertisementUrlPipe],
   imports: [],
-  exports: [SafePipe, GetImageUrlPipe, CommaSeperatePipe, TimeDurationPipe, timeDurationWithSec, DateDayPipe, NoSanitizePipe , RandomAdvertisementUrlPipe],
+  exports: [SafePipe, GetImageUrlPipe, CommaSeperatePipe, TimeDurationPipe, timeDurationWithSec, DateDayPipe, NoSanitizePipe, RandomAdvertisementUrlPipe],
 })
 export class PipeModule { }

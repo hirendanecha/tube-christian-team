@@ -31,7 +31,7 @@
           required
           name="channel"
           class="form-control w-100"
-          (change)="selectChannel($event.target.value)"
+          (change)="selectChannel($event)"
         >
           <option [value]="channel?.id" *ngFor="let channel of channelList">
             <span>{{ channel.firstname }}</span>
@@ -107,7 +107,7 @@
         <label class="form-label d-flex"
           >Video<span class="text-danger">*</span
           ><span class="d-none d-sm-block ms-2"
-            >(Max. video size allowed is 2 GB)</span
+            >(Max. video size allowed is 10 GB)</span
           ></label
         >
         <div class="d-flex" *ngIf="!selectedVideoFile">
@@ -215,10 +215,11 @@
   <div class="modal-body text-center">
     <div class="progress-bar-body">
       <h5>
-        It will take a while to upload long videos or if your internet
-        connection is bad. You MUST keep your browser tab open to avoid
-        interruptions. If you close this browser tab, your video will stop
-        uploading.
+        {{
+          progressValue <= 100
+            ? "It will take a while to upload long videos or if your internet connection is bad. You MUST keep your browser tab open to avoid interruptions. If you close this browser tab, your video will stop uploading."
+            : "Your file is uploading into cloud please wait for while..."
+        }}
       </h5>
     </div>
     <div class="osahan-progress">

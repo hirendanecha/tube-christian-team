@@ -2,14 +2,14 @@
   class="navbar navbar-expand navbar-light bg-white osahan-nav fixed-top justify-content-between gap-3"
 >
   <ng-container *ngIf="shareService.getCredentials(); else noCredentials">
-    <div  class="nav-logo">
+    <div class="nav-logo">
       <button
         class="btn btn-link btn-sm text-secondary order-1 order-sm-0 ms-1"
         (click)="toggleSidebar()"
       >
         <fa-icon [icon]="['fas', 'bars']" [fixedWidth]="true" />
       </button>
-      <a class="navbar-brand d-none d-sm-flex ms-2 me-1" routerLink="/home"
+      <a class="navbar-brand ms-2 me-1 d-none d-sm-flex" routerLink="/home"
         ><img
           class="img-fluid h-40-px rounded"
           alt=""
@@ -17,18 +17,18 @@
       /></a>
     </div>
     <ul
-      class="navbar-nav d-sm-flex flex-row justify-content-around align-self-center m-sm-auto gap-3 gap-xl-20 gap-lg-10 py-0 nav-btn"
+      class="navbar-nav d-sm-flex flex-row justify-content-around align-self-center m-sm-auto gap-5 gap-xl-20 gap-lg-10 py-0 nav-btn"
     >
       <li title="Christian Home" class="cursor">
         <a href="https://christian.team/home" target="_blank">
           <fa-icon [icon]="['fas', 'house']" class="font-24-px" />
         </a>
       </li>
-      <li title="Christian Research" class="cursor d-none d-sm-flex">
+      <!-- <li title="Research" class="cursor d-none d-sm-flex">
         <a href="https://christian.team/research" target="_blank">
           <fa-icon [icon]="['fas', 'book-open']" class="font-24-px mx-sm-5" />
         </a>
-      </li>
+      </li> -->
       <li title="Home" class="cursor">
         <a routerLink="/home">
           <fa-icon [icon]="['fas', 'play']" class="font-24-px" />
@@ -36,14 +36,16 @@
       </li>
     </ul>
     <!-- Navbar -->
-    <ul class="navbar-nav ms-auto ms-md-0 osahan-right-navbar align-items-center">
+    <ul
+      class="navbar-nav ms-auto ms-md-0 osahan-right-navbar align-items-center"
+    >
       <div class="single-item">
         <div
           class="icon-area d-center position-relative"
           (click)="openNotificationsModal()"
         >
           <span
-            *ngIf="shareService.isNotify"
+            *ngIf="shareService.isNotify$ | async"
             class="abs-area position-absolute d-center smtxt"
           ></span>
           <fa-icon [icon]="['fas', 'bell']" class="font-20-px" />
@@ -61,7 +63,7 @@
             ngbDropdownToggle
           >
             <img
-              data-src="{{ shareService.userDetails?.ProfilePicName }}"
+              data-src="{{ userDetails?.ProfilePicName }}"
               alt=""
               loading="lazy"
               onerror="this.onerror=null;this.src='assets/default-profile.png';"
@@ -71,7 +73,7 @@
               {{
                 shareService?.userChannelName
                   ? shareService?.userChannelName
-                  : shareService.userDetails?.Username
+                  : userDetails?.Username
               }}
             </div>
             <fa-icon [icon]="['fas', 'caret-down']" [fixedWidth]="true" />
@@ -89,7 +91,10 @@
               />
               &nbsp; My Account
             </button>
-            <button ngbDropdownItem routerLink="/account">
+            <button
+              ngbDropdownItem
+              (click)="goToAccount()"
+            >
               <fa-icon
                 class="font-20-px"
                 [icon]="['fas', 'user']"
@@ -101,19 +106,19 @@
             <fa-icon [icon]="['fas', 'video']" [fixedWidth]="true" />
             &nbsp; Subscriptions
           </button> -->
-            <button ngbDropdownItem routerLink="/settings">
+            <!-- <button ngbDropdownItem routerLink="/settings">
               <fa-icon
                 class="font-20-px"
                 [icon]="['fas', 'cog']"
                 [fixedWidth]="true"
               />
               &nbsp; Settings
-            </button>
+            </button> -->
             <button ngbDropdownItem>
               <div class="d-flex gap-1 align-items-center">
                 <fa-icon
                   class="font-20-px"
-                  [icon]="['fas', 'moon']"
+                  [icon]="['fas', 'sun']"
                   [fixedWidth]="true"
                 />
 
@@ -124,21 +129,21 @@
                     class="form-check-input"
                     type="checkbox"
                     role="button"
-                    [checked]="shareService.isDarkTheme"
+                    [checked]="!shareService.isDarkTheme"
                     (change)="shareService.toggleTheme()"
                   />
                 </div>
 
                 <fa-icon
                   class="font-20-px"
-                  [icon]="['fas', 'sun']"
+                  [icon]="['fas', 'moon']"
                   [fixedWidth]="true"
                 />
                 <!-- <fa-icon [icon]="['fas', 'moon']" [fixedWidth]="true" /> -->
               </div>
             </button>
             <div class="dropdown-divider"></div>
-            <button ngbDropdownItem (click)="logout()">
+            <button ngbDropdownItem (click)="logOut()">
               <fa-icon
                 class="font-20-px"
                 [icon]="['fas', 'sign-out-alt']"
@@ -154,11 +159,11 @@
     <div class="d-flex align-items-center justify-content-between w-100 m-2">
       <div class="d-flex">
         <button
-        class="btn btn-link btn-sm text-secondary ms-1"
-        (click)="toggleSidebar()"
-      >
-        <fa-icon [icon]="['fas', 'bars']" [fixedWidth]="true" />
-      </button>
+          class="btn btn-link btn-sm text-secondary ms-1"
+          (click)="toggleSidebar()"
+        >
+          <fa-icon [icon]="['fas', 'bars']" [fixedWidth]="true" />
+        </button>
         <a class="navbar-brand ms-2 me-1" routerLink="/home"
           ><img
             class="img-fluid h-32-px rounded"

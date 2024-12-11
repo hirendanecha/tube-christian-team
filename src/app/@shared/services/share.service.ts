@@ -5,7 +5,7 @@ import { AuthService } from './auth.service';
 import { BehaviorSubject, Subject } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ShareService {
   isSidebarOpen: boolean = true;
@@ -13,24 +13,29 @@ export class ShareService {
   userDetails: any = {};
   channelData: any = {};
   notificationList: any = [];
-  isNotify: boolean;
-  userChannelName: string
+  userChannelName: string;
   isUserAuthenticated: Subject<boolean> = new BehaviorSubject<boolean>(false);
   public _credentials: any = {};
   private mediaApprovedSubject = new BehaviorSubject<boolean>(false);
   mediaApproved$ = this.mediaApprovedSubject.asObservable();
+
+  originalFavicon: HTMLLinkElement;
+  private isNotifySubject = new BehaviorSubject<boolean>(false);
+  isNotify$ = this.isNotifySubject.asObservable();
 
   constructor(
     private commonService: CommonService,
     private authService: AuthService
   ) {
     const theme = localStorage.getItem('theme');
-    this.isDarkTheme = (theme === 'dark');
+    this.isDarkTheme = theme === 'dark';
     // this.isDarkTheme = !(theme === 'dark');
     this.toggleTheme();
 
     const sidebar = localStorage.getItem('sidebar');
-    this.isSidebarOpen = (sidebar === 'open');
+    this.isSidebarOpen = sidebar === 'open';
+    this.originalFavicon = document.querySelector('link[rel="icon"]');
+    window.addEventListener('storage', this.onStorageChange.bind(this));
   }
 
   openSidebar(): void {
@@ -63,7 +68,6 @@ export class ShareService {
     }
   }
 
-
   // toggleTheme(): void {
   //   if (this.isDarkTheme) {
   //     document.body.classList.remove('dark-theme');
@@ -83,36 +87,38 @@ export class ShareService {
       behavior: 'smooth',
     });
   }
+
   updateMediaApproved(value: boolean) {
     this.mediaApprovedSubject.next(value);
   }
 
   getUserDetails(id: any): void {
-    // const id = JSON.parse(this.authService.getUserData() as any)?.profileId
-    const url = environment.apiUrl + `customers/profile/${id}`
+    // const id = this.authService.getUserData()?.profileId
+    const url = environment.apiUrl + `customers/profile/${id}`;
     this.commonService.get(url).subscribe({
-      next: ((res: any) => {
-        localStorage.setItem('authUser', JSON.stringify(res.data[0]));
+      next: (res: any) => {
+        // localStorage.setItem('authUser', JSON.stringify(res.data[0]));
         this.userDetails = res.data[0];
         const mediaApproved = res.data[0].MediaApproved === 1;
         this.updateMediaApproved(mediaApproved);
-        console.log(this.userDetails)
+        // console.log(this.userDetails);
+        this.authService.getLoginUserDetails(this.userDetails);
         this.getChannelByUserId(this.userDetails?.channelId);
-      }), error: error => {
-        console.log(error)
-      }
-    })
+      },
+      error: (error) => {
+        console.log(error);
+      },
+    });
   }
-  getNotificationList() {
-    const id = this.userDetails.Id;
+  getNotificationList(id) {
     const data = {
       page: 1,
       size: 20,
     };
-    this.commonService.getNotificationList(Number(id), data).subscribe({
+    this.commonService.getNotificationList(parseInt(id), data).subscribe({
       next: (res: any) => {
-        localStorage.setItem('isRead', 'Y');
-        this.isNotify = false;
+        // localStorage.setItem('isRead', 'Y');
+        this.setNotify(false);
         this.notificationList = res?.data;
       },
       error: (error) => {
@@ -122,7 +128,7 @@ export class ShareService {
   }
 
   getChannelByUserId(value): void {
-    const url = environment.apiUrl
+    const url = environment.apiUrl;
     this.commonService.get(`${url}channels/get/${value}`).subscribe({
       next: (res) => {
         // console.log(res[0]?.id)
@@ -140,14 +146,32 @@ export class ShareService {
   }
 
   getCredentials(): any {
-    this._credentials = JSON.parse(this.authService.getUserData() as any) || null;
-    console.log(this._credentials);
-    const isAuthenticate = Object.keys(this._credentials || {}).length > 0;
+    // this._credentials =
+    //   this.authService.getUserData() || null;
+    const token = this.authService.getToken();
+    const isAuthenticate = token ? true : false;
     this.changeIsUserAuthenticated(isAuthenticate);
     return isAuthenticate;
   }
 
   changeIsUserAuthenticated(flag: boolean = false) {
     this.isUserAuthenticated.next(flag);
+  }
+
+  private onStorageChange(event: StorageEvent) {
+    if (event.key === 'isRead') {
+      this.setNotify(event.newValue === 'Y');
+    }
+  }
+
+  setNotify(value: boolean): void {
+    if (value) {
+      localStorage.setItem('isRead', 'Y');
+      this.originalFavicon.href = '/assets/img/icon-unread.jpg';
+    } else {
+      localStorage.setItem('isRead', 'N');
+      this.originalFavicon.href = '/assets/img/favicon.png';
+    }
+    this.isNotifySubject.next(value);
   }
 }

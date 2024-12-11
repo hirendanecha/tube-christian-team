@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { NgbModal, NgbOffcanvas } from '@ng-bootstrap/ng-bootstrap';
 import { BreakpointService } from 'src/app/@shared/services/breakpoint.service';
 import { ShareService } from 'src/app/@shared/services/share.service';
@@ -10,6 +10,7 @@ import { CookieService } from 'ngx-cookie-service';
 import { AuthService } from 'src/app/@shared/services/auth.service';
 import { VideoPostModalComponent } from 'src/app/@shared/modals/video-post-modal/video-post-modal.component';
 import { NotificationsModalComponent } from '../notifications-modal/notifications-modal.component';
+import { SocketService } from 'src/app/@shared/services/socket.service';
 
 @Component({
   selector: 'app-header',
@@ -29,26 +30,38 @@ export class HeaderComponent implements OnInit {
     private cookieService: CookieService,
     public authService: AuthService,
     private router: Router,
-    private modalService: NgbModal,
+    private socketService: SocketService,
+    private modalService: NgbModal
   ) {
-    const isRead = localStorage.getItem('isRead');
-    if (isRead === 'N') {
-      this.shareService.isNotify = true;
+    const notificationStatus = localStorage.getItem('isRead');
+    if (notificationStatus === 'Y') {
+      this.shareService.setNotify(true);
     }
+    this.socketService?.socket?.on('isReadNotification_ack', (data) => {
+      if (data?.profileId) {
+        this.shareService.setNotify(false);
+      }
+    });
   }
 
   ngOnInit(): void {
-    this.userDetails = JSON.parse(this.authService.getUserData() as any);
+    this.authService.loggedInUser$.subscribe((data) => {
+      this.userDetails = data;
+      +localStorage.setItem('profileId', (this.userDetails.profileId) as any);
+    });
   }
 
-  ngAfterViewInit(): void {
-  }
+  ngAfterViewInit(): void {}
 
   myAccountNavigation(): void {
-    const id = this.shareService.userDetails.profileId
-    // location.href = `https://freedom.buzz/settings/view-profile/${id}`;
+    const id = this.userDetails.profileId;
+    // location.href = `https://christian.team/settings/view-profile/${id}`;
     const url = `https://christian.team/settings/view-profile/${id}`;
-    window.open(url, "_blank");
+    window.open(url, '_blank');
+  }
+
+  goToAccount(): void {
+    this.router.navigate(['/account']);
   }
 
   toggleSidebar(): void {
@@ -59,13 +72,16 @@ export class HeaderComponent implements OnInit {
     }
   }
 
-  logout(): void {
-    // this.isCollapsed = true;
+  logOut(): void {
     this.cookieService.delete('auth-user', '/', environment.domain);
-        localStorage.clear();
-        sessionStorage.clear();
-        location.href = environment.logoutUrl;
-       
+    localStorage.clear();
+    sessionStorage.clear();
+    location.href = environment.logoutUrl;
+    // const url = environment.apiUrl + 'customers/logout';
+    // this.commonService.get(url).subscribe({
+    //   next: (res) => {
+    //   },
+    // });
   }
 
   isUserMediaApproved(): boolean {
@@ -93,5 +109,7 @@ export class HeaderComponent implements OnInit {
         modalDialogClass: 'notifications-modal',
       }
     );
+    this.userMenusOverlayDialog.componentInstance.profileId =
+      this.userDetails?.profileId;
   }
 }

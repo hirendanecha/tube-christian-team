@@ -2,7 +2,7 @@ import 'zone.js/node';
 
 import { APP_BASE_HREF } from '@angular/common';
 import { ngExpressEngine } from '@nguniversal/express-engine';
-import * as express from 'express';
+import express from 'express';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { AppServerModule } from './src/main.server';
@@ -12,7 +12,6 @@ import fetch from 'node-fetch';
 import { environment } from 'src/environments/environment.prod';
 
 const api_url = environment.apiUrl;
-
 
 // The Express app is exported so that it can be used by serverless Functions.
 export function app(): express.Express {
@@ -26,7 +25,10 @@ export function app(): express.Express {
   const path = require('path');
   const template = fs
     .readFileSync(
-      path.join(join(process.cwd(), 'tube-dist/tube-christian-team/browser'), 'index.html')
+      path.join(
+        join(process.cwd(), 'tube-dist/tube-christian-team/browser'),
+        'index.html'
+      )
     )
     .toString();
   // Shim for the global window and document objects.
@@ -50,7 +52,7 @@ export function app(): express.Express {
     'html',
     ngExpressEngine({
       bootstrap: AppServerModule,
-      inlineCriticalCss: false
+      inlineCriticalCss: false,
     })
   );
 
@@ -87,9 +89,7 @@ export function app(): express.Express {
           url: 'https://tube.christian.team' + params,
           keywords: 'Christian.tube',
         };
-        if (
-          params.indexOf('channel/') > -1
-        ) {
+        if (params.indexOf('channel/') > -1) {
           let id = params.split('/');
           id = id[id.length - 1];
           // id = params[params.length - 1];
@@ -122,13 +122,13 @@ export function app(): express.Express {
           // if (!isNaN(id) || Math.sign(id) > 0) {
           const [post]: any = await getPost(+id);
 
-          console.log(post);
+          console.log('post', post);
           const pdhtml = document.createElement('div');
           pdhtml.innerHTML = post?.postdescription || post?.metadescription;
           const talent = {
             name: post?.title || post?.albumname || 'Christian.tube Post',
             description: pdhtml?.textContent || 'Post content',
-            image: post?.thumbfilename || post?.metaimage || post?.imageUrl,
+            image: post?.thumbfilename || post?.metaimage || post?.imageUrl || 'https://tube.christian.team/assets/FreedomTube-logo.png',
           };
           seo.title = talent.name;
           seo.description = strip_html_tags(talent.description);
@@ -159,12 +159,11 @@ export function app(): express.Express {
 }
 
 async function getChannel(id: any) {
-  return fetch(api_url + 'channels/' + id).then((resp) =>
-    resp.json()
-  ).catch(err => {
-    console.log("getChannel: ", err);
-
-  });
+  return fetch(api_url + 'channels/' + id)
+    .then((resp) => resp.json())
+    .catch((err) => {
+      console.log('getChannel: ', err);
+    });
 }
 
 async function getPost(id: any) {

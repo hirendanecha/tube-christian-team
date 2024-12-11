@@ -22,11 +22,11 @@
       />
     </div>
     <div class="input-area py-2 px-3 gap-2 align-items-center w-100 ms-2">
-      <ng-container *ngIf="commentData?.imageUrl">
+      <ng-container *ngIf="commentData?.imageUrl || selectedImage">
         <div class="position-relative w-52-px h-52-px mb-2">
           <img
             loading="lazy"
-            data-src="{{ commentData?.imageUrl }}"
+            data-src="{{ commentData?.imageUrl || selectedImage }}"
             class="w-100 h-100 rounded-4"
             alt="icon"
           />

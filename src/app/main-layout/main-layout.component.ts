@@ -3,7 +3,7 @@ import { ShareService } from '../@shared/services/share.service';
 import { BreakpointService } from '../@shared/services/breakpoint.service';
 import { environment } from 'src/environments/environment';
 import { CommonService } from '../@shared/services/common.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, NavigationExtras, Router } from '@angular/router';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { AuthService } from '../@shared/services/auth.service';
 import { CookieService } from 'ngx-cookie-service';
@@ -22,39 +22,55 @@ export class MainLayoutComponent implements OnInit {
     private router: Router,
     private spinner: NgxSpinnerService,
     private authService: AuthService,
-    private cookieService: CookieService
-  ) {}
+    private cookieService: CookieService,
+    private route: ActivatedRoute
+  ) {
+    const queryParams = this.route.snapshot.queryParams;
+    const newParams = { ...queryParams };
+    if (newParams['authToken']) {
+      const token = newParams['authToken'];
+      this.authService.setToken(token);
+      if (newParams['channelId']) {
+        localStorage.setItem('channelId', newParams['channelId']);
+      }
+      setTimeout(() => {
+        delete newParams['authToken'];
+        const navigationExtras: NavigationExtras = {
+          queryParams: newParams,
+        };
+        this.router.navigate([], navigationExtras);
+      }, 1000);
+    }
+  }
 
   ngOnInit(): void {
     this.spinner.show();
     const url = environment.apiUrl + 'login/me';
     this.commonService
-      .get(url, {
-        withCredentials: true,
+      .get(`${url}?q=${Date.now()}`, {
+        // withCredentials: true,
+        headers: {
+          Authorization: `Bearer ${this.authService.getToken()}`,
+        },
       })
       .subscribe({
         next: (res) => {
           this.spinner.hide();
-          this.tokenData = { ...res };
-          const auth = this.tokenData?.user;
-          const token = this.tokenData?.accessToken;
-          const isLogin = token && auth ? true : false;
-          this.authService.setToken(token);
-          // this.authService.setUserData(auth)
-          this.shareService.getUserDetails(auth?.profileId);
-          this.authService.userDetails = auth;
-          this.authService.token = token;
-          // if (!isLogin) {
-          //   location.href = environment?.loginUrl;
-          // }
+          // console.log(res);
+          // this.authService.setUserData(res);
+          this.authService.getLoginUserDetails(res);
+          this.shareService.updateMediaApproved(res?.MediaApproved);
         },
         error: (err) => {
           this.spinner.hide();
-          // window.location.href = environment?.loginUrl;
-          console.log(err);
-          this.cookieService.delete('auth-user', '/', environment.domain);
           localStorage.clear();
-          sessionStorage.clear();
+          // const url = environment.apiUrl + 'customers/logout';
+          // location.href = environment.logoutUrl;
+          // this.commonService.get(url).subscribe({
+          //   next: (res) => {
+          //   },
+          // });
+          // console.log(err);
         },
       });
   }

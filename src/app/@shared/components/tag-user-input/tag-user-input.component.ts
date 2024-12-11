@@ -1,4 +1,15 @@
-import { Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, Output, Renderer2, SimpleChanges, ViewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnDestroy,
+  Output,
+  Renderer2,
+  SimpleChanges,
+  ViewChild,
+} from '@angular/core';
 import { NgbDropdown } from '@ng-bootstrap/ng-bootstrap';
 import { Subject, debounceTime, takeUntil } from 'rxjs';
 import { NgxSpinnerService } from 'ngx-spinner';
@@ -8,18 +19,19 @@ import { CommonService } from '../../services/common.service';
 @Component({
   selector: 'app-tag-user-input',
   templateUrl: './tag-user-input.component.html',
-  styleUrls: ['./tag-user-input.component.scss']
+  styleUrls: ['./tag-user-input.component.scss'],
 })
 export class TagUserInputComponent implements OnChanges, OnDestroy {
-
   @Input('value') value: string = '';
   @Input('placeholder') placeholder: string = 'ss';
   @Input('isShowMetaPreview') isShowMetaPreview: boolean = true;
   @Input('isAllowTagUser') isAllowTagUser: boolean = true;
-  @Output('onDataChange') onDataChange: EventEmitter<any> = new EventEmitter<any>();
+  @Output('onDataChange') onDataChange: EventEmitter<any> =
+    new EventEmitter<any>();
 
   @ViewChild('tagInputDiv', { static: false }) tagInputDiv: ElementRef;
-  @ViewChild('userSearchDropdownRef', { static: false, read: NgbDropdown }) userSearchNgbDropdown: NgbDropdown;
+  @ViewChild('userSearchDropdownRef', { static: false, read: NgbDropdown })
+  userSearchNgbDropdown: NgbDropdown;
 
   ngUnsubscribe: Subject<void> = new Subject<void>();
   metaDataSubject: Subject<void> = new Subject<void>();
@@ -27,7 +39,7 @@ export class TagUserInputComponent implements OnChanges, OnDestroy {
   userList: any = [];
   userNameSearch = '';
   metaData: any = {};
-  apiUrl = environment.apiUrl + 'customers/'
+  apiUrl = environment.apiUrl + 'customers/';
   constructor(
     private renderer: Renderer2,
     private spinner: NgxSpinnerService,
@@ -66,22 +78,56 @@ export class TagUserInputComponent implements OnChanges, OnDestroy {
   }
 
   checkUserTagFlag(): void {
+    this.userList = [];
     if (this.isAllowTagUser) {
-      const htmlText = this.tagInputDiv?.nativeElement?.innerHTML || '';
+      let htmlText = this.tagInputDiv?.nativeElement?.innerHTML || '';
+      const anchorTagRegex =
+        /<a\s+href="\/settings\/view-profile\/(\d+)"\s+class="text-danger"\s+data-id="\d+">@([\w\s]+)<\/a>/g;
+      htmlText = htmlText.replace(anchorTagRegex, '');
 
-      const atSymbolIndex = htmlText.lastIndexOf('@');
-
-      if (atSymbolIndex !== -1) {
-        this.userNameSearch = htmlText.substring(atSymbolIndex + 1);
-        if (this.userNameSearch?.length > 2) {
+      const atSymbolRegex = /@/g;
+      const matches = [...htmlText.matchAll(atSymbolRegex)];
+      const cursorPosition = this.getCursorPosition();
+      if (matches.length > 0) {
+        let foundValidTag = false;
+        for (const match of matches) {
+          const atSymbolIndex = match.index;
+          if (cursorPosition > atSymbolIndex) {
+            let textAfterAt = htmlText
+              .substring(atSymbolIndex + 1, cursorPosition)
+              .trim();
+            textAfterAt = textAfterAt.replace(/<[^>]*>/g, '');
+            textAfterAt = textAfterAt.replace(/[^\w\s]/g, '');
+            const currentPositionValue = textAfterAt.split(' ')[0].trim();
+            if (currentPositionValue.length > 0) {
+              this.userNameSearch = currentPositionValue;
+              foundValidTag = true;
+            }
+          }
+        }
+        if (
+          foundValidTag &&
+          this.userNameSearch &&
+          this.userNameSearch.length > 2
+        ) {
           this.getUserList(this.userNameSearch);
         } else {
           this.clearUserSearchData();
         }
-      } else {
-        this.clearUserSearchData();
       }
     }
+  }
+
+  getCursorPosition(): number {
+    const selection = window.getSelection();
+    if (selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      const preCaretRange = range.cloneRange();
+      preCaretRange.selectNodeContents(this.tagInputDiv.nativeElement);
+      preCaretRange.setEnd(range.endContainer, range.endOffset);
+      return preCaretRange.toString().length;
+    }
+    return -1;
   }
 
   getMetaDataFromUrlStr(): void {
@@ -131,38 +177,100 @@ export class TagUserInputComponent implements OnChanges, OnDestroy {
   moveCursorToEnd(): void {
     const range = document.createRange();
     const selection = window.getSelection();
-    range.setStart(this.tagInputDiv?.nativeElement, this.tagInputDiv?.nativeElement.childNodes.length);
+    range.setStart(
+      this.tagInputDiv?.nativeElement,
+      this.tagInputDiv?.nativeElement.childNodes.length
+    );
     range.collapse(true);
     selection.removeAllRanges();
     selection.addRange(range);
-  };
+  }
 
   selectTagUser(user: any): void {
     const htmlText = this.tagInputDiv?.nativeElement?.innerHTML || '';
 
-    const text = htmlText.replace(
-      `@${this.userNameSearch}`,
-      `<a href="/settings/view-profile/${user?.Id}" class="text-danger" data-id="${user?.Id}">@${user?.Username}</a>`
+    const savedRange = this.saveCursorPosition();
+    const replaceUsernamesInTextNodesAtCursor = (
+      html: string,
+      userName: string,
+      userId: string,
+      displayName: string
+    ) => {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      const walk = (node: Node) => {
+        if (node.nodeType === Node.TEXT_NODE) {
+          const cursorPosition = this.getCursorPosition();
+          const regex = /@/g;
+          const match = regex.exec(node.nodeValue || '');
+          if (match && match.index <= cursorPosition) {
+            const atSymbolIndex = match.index;
+            const replacement = `<a href="/settings/view-profile/${userId}" class="text-danger" data-id="${userId}">@${displayName}</a>`;
+            const beforeText = node.nodeValue?.substring(0, atSymbolIndex);
+            const afterText = node.nodeValue?.substring(cursorPosition);
+            const replacedText = `${beforeText}${replacement}${afterText}`;
+            const span = document.createElement('span');
+            span.innerHTML = replacedText;
+            while (span.firstChild) {
+              node.parentNode?.insertBefore(span.firstChild, node);
+            }
+            node.parentNode?.removeChild(node);
+          }
+        } else if (
+          node.nodeType === Node.ELEMENT_NODE &&
+          node.nodeName.toLowerCase() !== 'a'
+        ) {
+          node.childNodes.forEach((child) => walk(child));
+        }
+      };
+
+      doc.body.childNodes.forEach((child) => walk(child));
+      return doc.body.innerHTML;
+    };
+    const text = replaceUsernamesInTextNodesAtCursor(
+      htmlText,
+      this.userNameSearch,
+      user?.Id,
+      user?.Username.split(' ').join('')
     );
     this.setTagInputDivValue(text);
+    this.restoreCursorPosition(savedRange);
     this.emitChangeEvent();
-    this.moveCursorToEnd()
+    this.moveCursorToEnd();
+  }
+
+  saveCursorPosition(): Range | null {
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0) {
+      return selection.getRangeAt(0).cloneRange();
+    }
+    return null;
+  }
+
+  restoreCursorPosition(savedRange: Range | null): void {
+    if (savedRange) {
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(savedRange);
+    }
   }
 
   getUserList(search: string): void {
-    this.commonService.get(`${this.apiUrl}search-user?searchText=${search}`).subscribe({
-      next: (res: any) => {
-        if (res?.data?.length > 0) {
-          this.userList = res.data;
-          this.userSearchNgbDropdown?.open();
-        } else {
+    this.commonService
+      .get(`${this.apiUrl}search-user?searchText=${search}`)
+      .subscribe({
+        next: (res: any) => {
+          if (res?.data?.length > 0) {
+            this.userList = res.data;
+            this.userSearchNgbDropdown?.open();
+          } else {
+            this.clearUserSearchData();
+          }
+        },
+        error: () => {
           this.clearUserSearchData();
-        }
-      },
-      error: () => {
-        this.clearUserSearchData();
-      },
-    });
+        },
+      });
   }
 
   clearUserSearchData(): void {
@@ -190,7 +298,7 @@ export class TagUserInputComponent implements OnChanges, OnDestroy {
     if (this.tagInputDiv) {
       // console.log(this.tagInputDiv);
       const htmlText = this.tagInputDiv?.nativeElement?.innerHTML;
-      this.value = `${htmlText}`.replace(/\<div\>\<br\>\<\/div\>/ig, '');
+      this.value = `${htmlText}`.replace(/\<div\>\<br\>\<\/div\>/gi, '');
 
       this.onDataChange.emit({
         html: htmlText,

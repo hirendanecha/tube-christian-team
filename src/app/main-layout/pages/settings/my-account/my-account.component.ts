@@ -16,26 +16,33 @@ export class MyAccountComponent {
   channelDetails: any = {};
   apiUrl = environment.apiUrl + 'channels';
   channelData: any = [];
+  channelList: any = [];
   activePage = 0;
   channelId: number;
-  channelList:any=[];
-  countChannel:number;
+  countChannel: number;
   hasMoreData = false;
   postedVideoCount: number;
   userChannelCount: number;
   constructor(
     private commonService: CommonService,
     private spinner: NgxSpinnerService,
-    public shareService: ShareService,
-    private authService:AuthService,
+    private authService: AuthService,
+    public shareService: ShareService
   ) {
     this.channelId = +localStorage.getItem('channelId');
-    this.userData = JSON.parse(localStorage.getItem('authUser'));
+    if (this.userData?.channelId && !this.channelId) {
+      localStorage.setItem('channelId', this.userData?.channelId);
+    }
   }
 
   ngOnInit(): void {
+    // console.log("h",this.channelData);
+    this.authService.loggedInUser$.subscribe((data) => {
+      this.userData = data;
+      this.getChannels();
+    });
     this.getPostVideosById();
-    this.getChannelByUserId()
+    this.getChannelByUserId();
   }
 
   getPostVideosById(): void {
@@ -77,7 +84,7 @@ export class MyAccountComponent {
           if (res?.data?.length > 0) {
             this.videoList = this.videoList.concat(res.data);
             this.hasMoreData = false;
-            this.postedVideoCount = res.pagination.totalItems;     
+            this.postedVideoCount = res.pagination.totalItems;
           } else {
             this.hasMoreData = true;
           }
@@ -90,30 +97,34 @@ export class MyAccountComponent {
   }
 
   getChannelByUserId(): void {
-    const url = environment.apiUrl
-    this.commonService.get(`${url}channels/my-channel/${this.userData.Id}`).subscribe({
-      next: (res) => {
-        if (res) {
-          this.channelData = res;
-          this.userChannelCount = this.channelData.length
-          console.log(this.channelData.length);
-        }
-      },
-      error: (error) => {
-        console.log(error);
-      },
-    });
+    const url = environment.apiUrl;
+    this.commonService
+      .get(`${url}channels/my-channel/${this.userData.UserID}`)
+      .subscribe({
+        next: (res) => {
+          if (res) {
+            this.channelData = res;
+            this.userChannelCount = this.channelData.length;
+            console.log(this.channelData.length);
+          }
+        },
+        error: (error) => {
+          console.log(error);
+        },
+      });
   }
   getChannels(): void {
-    const userId = JSON.parse(this.authService.getUserData() as any)?.profileId;
+    const userId = this.userData?.UserID;    
     const apiUrl = `${environment.apiUrl}channels/get-channels/${userId}`;
     this.commonService.get(apiUrl).subscribe({
       next: (res) => {
-        if(res){
-        this.channelList = res.data;
-        this.countChannel=this.channelList.length
-        let channelIds = this.channelList.map(e => e.id);
-        localStorage.setItem('get-channels', JSON.stringify(channelIds));
+        if (res) {
+          this.channelList = res.data;
+          this.countChannel = this.channelList.length;
+          let channelIds = this.channelList.map((e) => e.id);
+          if (channelIds.length > 0) {
+            localStorage.setItem('get-channels', JSON.stringify(channelIds));
+          }
         }
       },
       error(err) {

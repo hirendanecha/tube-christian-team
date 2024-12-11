@@ -1,12 +1,14 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NgbOffcanvas } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbOffcanvas } from '@ng-bootstrap/ng-bootstrap';
 import { ShareService } from 'src/app/@shared/services/share.service';
 import { environment } from '../../../../environments/environment';
 import { CommonService } from 'src/app/@shared/services/common.service';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { AuthService } from 'src/app/@shared/services/auth.service';
 import { BreakpointService } from 'src/app/@shared/services/breakpoint.service';
+import { FEATURED_CHANNEL_ORDER } from 'src/app/@shared/constant/featureChannelOrder';
+import { ChannelApplicationModalComponent } from 'src/app/@shared/modals/channel-application-modal/channel-application-modal.component';
 
 @Component({
   selector: 'app-sidebar',
@@ -29,6 +31,7 @@ export class SidebarComponent {
     public authService: AuthService,
     public breakpointService: BreakpointService,
     private offcanvasService: NgbOffcanvas,
+    private modalService: NgbModal
   ) {}
 
   ngOnInit(): void {
@@ -43,7 +46,17 @@ export class SidebarComponent {
       next: (res: any) => {
         // this.spinner.hide();
         if (res.data) {
-          this.featuredChannels = res.data;
+          // this.featuredChannels = res.data;
+          this.featuredChannels = res.data
+            .filter((item: any) => item.feature === 'Y')
+            .sort((a, b) => {
+              const indexA = FEATURED_CHANNEL_ORDER.indexOf(a.firstname);
+              const indexB = FEATURED_CHANNEL_ORDER.indexOf(b.firstname);
+              return (
+                (indexA === -1 ? Infinity : indexA) -
+                (indexB === -1 ? Infinity : indexB)
+              );
+            });
         }
       },
       error: (error) => {
@@ -65,5 +78,12 @@ export class SidebarComponent {
 
   isUserMediaApproved(): boolean {
     return this.useDetails?.MediaApproved === 1;
+  }
+
+  openApplicationForm(): void {
+    const modalRef = this.modalService.open(ChannelApplicationModalComponent, {
+      centered: true,
+      size: 'lg',
+    });
   }
 }

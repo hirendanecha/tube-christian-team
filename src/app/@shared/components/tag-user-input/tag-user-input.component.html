@@ -56,7 +56,7 @@
       [alt]="item.Username"
       onerror="this.onerror=null;this.src='assets/default-profile.png';"
     />
-    <span>{{ item.Username }}</span>
+    <span>{{ (item.Username?.split(" "))?.join("") }}</span>
   </div>
 </ng-template>
 

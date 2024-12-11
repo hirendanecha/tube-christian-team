@@ -4,23 +4,29 @@
   <div>
     <ng-container *ngIf="advertisementDataList.length; else localAdvertisement">
       <!-- <div class="d-flex justify-content-center gap-2 token-img-modal token-hide-mb">
-      <ng-container *ngFor="let item of advertisementDataList | slice:0:4">
-          <div>
+    <ng-container *ngFor="let item of advertisementDataList | slice:0:4">
+        <div>
+          <img
+            loading="lazy"
+            [src]="item.imageUrl"
+            class="advertise-image h-100 w-100"
+            alt=""
+          />
+        </div>
+      </ng-container>
+    </div> -->
+      <div
+        class="d-flex flex-wrap justify-content-center gap-2 token-img-modal token-hide-mb"
+      >
+        <ng-container *ngFor="let ad of advertisementDataList | slice : 0 : 4">
+          <a
+            class="advertise-image-container"
+            [attr.href]="ad?.link ? ad?.link : null"
+            [attr.target]="ad?.link ? '_blank' : null"
+            >
             <img
               loading="lazy"
-              [src]="item.imageUrl"
-              class="advertise-image h-100 w-100"
-              alt=""
-            />
-          </div>
-        </ng-container>
-      </div> -->
-      <div class="d-flex flex-wrap justify-content-center gap-2 token-img-modal token-hide-mb">
-        <ng-container *ngFor="let ad of advertisementDataList | slice:0:4">
-          <a class="advertise-image-container" [attr.href]="ad.link ? ad.link : null" [attr.target]="ad.link ? '_blank' : null">
-            <img
-              loading="lazy"
-              [src]="ad.imageUrl"
+              data-src="{{ ad?.imageUrl }}"
               class="advertise-image h-100 w-100 rounded-2"
               alt=""
             />
@@ -29,15 +35,17 @@
       </div>
     </ng-container>
     <ng-template #localAdvertisement>
-    <div class="col-12 col-md-12 col-lg-8 m-auto token-img-modal token-hide-mb">
-      <img
-        loading="lazy"
-        data-src="{{ '/assets/img/localFoodslogo.png' }}"
-        class="w-100"
-        alt=""
-      />
-    </div>
-  </ng-template>
+      <div
+        class="col-12 col-md-12 col-lg-8 m-auto token-img-modal token-hide-mb"
+      >
+        <img
+          loading="lazy"
+          data-src="{{ '/assets/img/localFoodslogo.png' }}"
+          class="w-100"
+          alt=""
+        />
+      </div>
+    </ng-template>
     <div
       class="d-xl-flex column-gap-2 column-gap-xxl-4 col-12 col-md-12 col-lg-8 m-auto px-4 mt-4 justify-content-center mb-view-left-txt c-searchbar"
     >
@@ -55,7 +63,7 @@
           />
           <div class="input-group-append c-button">
             <button
-              class="btn btn-light"
+              class="btn btn-light search-input"
               type="button"
               [disabled]="!searchText"
               (click)="getSearchData(searchText)"
@@ -119,7 +127,10 @@
         My Channel
       </div> -->
 
-      <div ngbDropdown class="d-flex flex-column flex-sm-row align-items-center gap-2 d-inline-block btn-group float-end right-action">
+      <div
+        ngbDropdown
+        class="d-flex flex-column flex-sm-row align-items-center gap-2 d-inline-block btn-group float-end right-action"
+      >
         <fa-icon [icon]="['fas', 'user']" [fixedWidth]="true" />
         <a
           (click)="!channelList.length ? getChannels() : null"
@@ -144,7 +155,7 @@
               <img
                 [src]="channel.profile_pic_name"
                 alt=""
-                class="me-3 w-32-px rounded-5"
+                class="me-3 h-32-px w-32-px rounded-5"
               />
               <span class="c-text">{{ channel.firstname }}</span>
             </div>

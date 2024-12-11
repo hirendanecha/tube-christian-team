@@ -1,12 +1,22 @@
 :host {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
   .post-description {
     max-width: 630px;
-    line-break: anywhere;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
     .post-img {
       max-width: 630px;
     }
+  }
+
+  .text-blue {
+    --bs-text-opacity: 1;
+    color: rgba(var(--bs-primary-rgb), var(--bs-text-opacity)) !important;
+  }
+
+  .meta-card {
+    max-width: 252px;
   }
 }

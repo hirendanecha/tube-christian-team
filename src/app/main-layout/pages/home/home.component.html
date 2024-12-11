@@ -7,79 +7,133 @@
       <h2 class="text-center">No search result found</h2>
     </ng-container>
     <ng-container *ngIf="channelData?.firstname && !searchResults">
-      <div class="main-title d-flex font-24-px icon-color">
-        <fa-icon [icon]="['fas', 'play-circle']" class="me-2" />
-        <h6>{{ channelData.firstname }}</h6>
+      <div class="d-sm-flex justify-content-between">
+        <div class="main-title d-flex font-24-px icon-color col-md-2 align-items-center">
+          <fa-icon [icon]="['fas', 'play-circle']" class="me-2" />
+          <h6>{{ channelData?.firstname }}</h6>
+        </div>
+        <div class="d-flex gap-3 p-2 sharing-platform">
+          <a href="https://christian.team/home"
+          class="img cursor-pointer" target="_blank">
+          <img class="w-40-px h-40-px rounded-circle" src="assets/img/favicon.png" alt="">
+        </a>
+          <a href="https://twitter.com/intent/tweet?url=https://tube.christian.team/channel/{{channelData?.unique_link}} "
+            class="img cursor-pointer" target="_blank">
+            <img class="w-40-px h-40-px" src="assets/img/twitter.png" alt="">
+          </a>
+          <a href="https://www.facebook.com/sharer/sharer.php?u=https://tube.christian.team/channel/{{channelData?.unique_link}}" 
+            class="img cursor-pointer"  target="_blank">
+            <img class="w-40-px h-40-px" src="assets/img/facebook.png" alt="">
+          </a>
+          <a href="https://www.linkedin.com/shareArticle?mini=true&url=https://tube.christian.team/channel/{{channelData?.unique_link}}" target="_blank" class="img cursor-pointer">
+            <img class="w-40-px h-40-px" src="assets/img/linkedin.png" alt="">
+          </a>
+          <!-- <a href="https://www.instagram.com/?url=https://tube.christian.team/channel/{{ channelData?.unique_link }}&caption={{ channelData?.caption }}" 
+            target="_blank" class="img cursor-pointer">
+            <img class="w-40-px h-40-px" src="assets/img/instagram.png" alt="">
+          </a> -->
+          <!-- <a href="https://www.youtube.com/watch?v={{ channelData?.unique_link}}" target="_blank" class="img cursor-pointer">
+            <img class="w-40-px h-40-px" src="assets/img/youtube.png" alt="">
+          </a> -->
+        </div>
       </div>
-      <app-video-card [videoData]="videoList" />
-      <div
-      class="align-items-center justify-content-center mb-2 row"
-      *ngIf="!hasMoreData && videoList.length"
-    >
-    <div class="add-left d-flex gap-5 col-lg-5">
-      <div class="d-flex m-auto gap-3 gap-xxl-4">
-    <ng-container *ngIf="advertisementDataList?.[0]?.imageUrl">
-      <a class="advertise-image-container d-none d-sm-flex" [attr.href]="advertisementDataList?.[0]?.link ? advertisementDataList?.[0]?.link : null" [attr.target]="advertisementDataList?.[0]?.link ? '_blank' : null">
-        <img
-          loading="lazy"
-          [src]="advertisementDataList?.[0]?.imageUrl"
-          class="advertise-image h-100 w-100 rounded-2"
-          alt=""
-        />
-      </a>
-    </ng-container>
-    <ng-container *ngIf="advertisementDataList?.[2]?.imageUrl">
-      <a class="advertise-image-container d-none d-sm-flex" [attr.href]="advertisementDataList?.[2]?.link ? advertisementDataList?.[2]?.link : null" [attr.target]="advertisementDataList?.[2]?.link ? '_blank' : null">
-        <img
-          loading="lazy"
-          [src]="advertisementDataList?.[2]?.imageUrl"
-          class="advertise-image h-100 w-100 rounded-2"
-          alt=""
-        />
-      </a>
-    </ng-container>
-  </div>
-  </div>
-    <div class="col-lg-2 m-sm-4 m-lg-0">
-      <button class="btn btn-outline-primary d-block m-auto" (click)="loadMore()">
-        Load More
-      </button>
-    </div>
-    <div class="add-right d-flex gap-5 col-lg-5">
-      <div class="d-flex m-auto gap-3 gap-xxl-4">
-      <ng-container *ngIf="advertisementDataList?.[1]?.imageUrl">
-        <a class="advertise-image-container d-none d-sm-flex" [attr.href]="advertisementDataList?.[1]?.link ? advertisementDataList?.[1]?.link : null" [attr.target]="advertisementDataList?.[1]?.link ? '_blank' : null">
+      <app-video-card [videoData]="videoList" />  
+
+      <!-- comment adds -->
+      <!-- <div
+        class="align-items-center justify-content-center mb-2 row"
+        *ngIf="!hasMoreData && videoList.length"
+      >
+      <div class="add-left d-flex gap-5 col-lg-5">
+        <div class="d-flex m-auto gap-3 gap-xxl-4">
+      <ng-container *ngIf="advertisementDataList?.[0]?.imageUrl">
+        <a class="advertise-image-container d-none d-sm-flex" [attr.href]="advertisementDataList?.[0]?.link ? advertisementDataList?.[0]?.link : null" [attr.target]="advertisementDataList?.[0]?.link ? '_blank' : null">
           <img
             loading="lazy"
-            [src]="advertisementDataList[1]?.imageUrl"
-            class="advertise-image h-100 w-100 rounded-2"
+            [src]="advertisementDataList?.[0]?.imageUrl"
+            class="advertise-image image-render h-100 w-100 rounded-2"
             alt=""
           />
         </a>
       </ng-container>
-      <ng-container *ngIf="advertisementDataList?.[3]?.imageUrl">
-        <a class="advertise-image-container d-none d-sm-flex" [attr.href]="advertisementDataList?.[3]?.link ? advertisementDataList?.[3]?.link : null" [attr.target]="advertisementDataList?.[3]?.link ? '_blank' : null">
+      <ng-container *ngIf="advertisementDataList?.[2]?.imageUrl">
+        <a class="advertise-image-container d-none d-sm-flex" [attr.href]="advertisementDataList?.[2]?.link ? advertisementDataList?.[2]?.link : null" [attr.target]="advertisementDataList?.[2]?.link ? '_blank' : null">
           <img
             loading="lazy"
-            [src]="advertisementDataList[3]?.imageUrl"
-            class="advertise-image h-100 w-100 rounded-2"
+            [src]="advertisementDataList?.[2]?.imageUrl"
+            class="advertise-image image-render h-100 w-100 rounded-2"
             alt=""
           />
         </a>
       </ng-container>
     </div>
     </div>
-    </div>
-  </ng-container>
+      <div class="col-lg-2 m-sm-4 m-lg-0">
+        <button class="btn btn-outline-primary d-block m-auto" (click)="loadMore()">
+          Load More
+        </button>
+      </div>
+      <div class="add-right d-flex gap-5 col-lg-5">
+        <div class="d-flex m-auto gap-3 gap-xxl-4">
+        <ng-container *ngIf="advertisementDataList?.[1]?.imageUrl">
+          <a class="advertise-image-container d-none d-sm-flex" [attr.href]="advertisementDataList?.[1]?.link ? advertisementDataList?.[1]?.link : null" [attr.target]="advertisementDataList?.[1]?.link ? '_blank' : null">
+            <img
+              loading="lazy"
+              [src]="advertisementDataList[1]?.imageUrl"
+              class="advertise-image image-render h-100 w-100 rounded-2"
+              alt=""
+            />
+          </a>
+        </ng-container>
+        <ng-container *ngIf="advertisementDataList?.[3]?.imageUrl">
+          <a class="advertise-image-container d-none d-sm-flex" [attr.href]="advertisementDataList?.[3]?.link ? advertisementDataList?.[3]?.link : null" [attr.target]="advertisementDataList?.[3]?.link ? '_blank' : null">
+            <img
+              loading="lazy"
+              [src]="advertisementDataList[3]?.imageUrl"
+              class="advertise-image image-render h-100 w-100 rounded-2"
+              alt=""
+            />
+          </a>
+        </ng-container>
+      </div>
+      </div>
+      </div> -->
+    
+    
+    </ng-container>
   </div>
 </div>
-<ng-container *ngIf="!searchResults">
+<ng-container *ngIf="!searchResults && !channelName">
   <div class="video-block section-padding">
-    <div class="row">
-      <div class="col-md-12">
-        <div class="main-title d-flex font-24-px icon-color">
-          <fa-icon [icon]="['fas', 'play-circle']" class="me-2" />
-          <h6>Featured Videos</h6>
+    <div class="row align-items-center">
+      <div class="d-sm-flex justify-content-between align-items-center">
+        <div class="col-md-2">
+          <div class="main-title d-flex font-24-px icon-color">
+            <fa-icon [icon]="['fas', 'play-circle']" class="me-2" />
+            <h6>Featured Videos</h6>
+          </div>
+        </div>
+        <div class="d-flex gap-3 p-2 sharing-platform">
+          <a href="https://christian.team/home"
+          class="img cursor-pointer" target="_blank">
+          <img class="w-40-px h-40-px rounded-circle" src="assets/img/favicon.png" alt="">
+          </a>
+          <a href="https://twitter.com/intent/tweet?url=https://tube.christian.team/channel/{{channelData?.unique_link}}" class="img cursor-pointer"  target="_blank">
+            <img class="w-40-px h-40-px" src="assets/img/twitter.png" alt="">
+          </a>
+          <a href="https://www.facebook.com/sharer/sharer.php?u=https://tube.christian.team/channel/{{channelData?.unique_link}}" class="img cursor-pointer"  target="_blank">
+            <img class="w-40-px h-40-px" src="assets/img/facebook.png" alt="">
+          </a>
+          <a href="https://www.linkedin.com/shareArticle?mini=true&url=https://tube.christian.team/channel/{{channelData?.unique_link}}" target="_blank" class="img cursor-pointer">
+            <img class="w-40-px h-40-px" src="assets/img/linkedin.png" alt="">
+          </a>
+          <!-- <a href="https://www.instagram.com/share?url=https://tube.christian.team/channel/{{ channelData?.unique_link }}&caption={{ channelData?.caption }}" 
+          target="_blank" class="img cursor-pointer">
+          <img class="w-40-px h-40-px" src="assets/img/instagram.png" alt="">
+        </a> -->
+          <!-- <a href="https://www.youtube.com" target="_blank" class="img cursor-pointer">
+            <img class="w-40-px h-40-px" src="assets/img/youtube.png" alt="">
+          </a> -->
         </div>
       </div>
       <app-video-card [videoData]="recommendedVideoList" />
@@ -87,9 +141,9 @@
         class="d-flex justify-content-center mb-2"
         *ngIf="!hasRecommendedData && recommendedVideoList.length"
       >
-        <button class="btn btn-outline-primary" (click)="recommendedLoadMore()">
+        <!-- <button class="btn btn-outline-primary" (click)="recommendedLoadMore()">
           Load More
-        </button>
+        </button> -->
       </div>
     </div>
   </div>

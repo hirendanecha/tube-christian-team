@@ -8,7 +8,6 @@ import {
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
-
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
 };
@@ -37,7 +36,7 @@ export class ChannelService {
     return this.http.post(`${this.baseUrl}/get/`, data);
   }
 
-  createChannel(data){
+  createChannel(data) {
     return this.http.post(`${this.baseUrl}/create-channel`, data);
   }
 
@@ -71,5 +70,9 @@ export class ChannelService {
     );
 
     return this.http.request(req);
+  }
+
+  createApplication(data): Observable<any> {
+    return this.http.post(`${this.baseUrl}/create-application`, data);
   }
 }

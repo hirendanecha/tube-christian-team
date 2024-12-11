@@ -25,22 +25,31 @@ export class ToastService {
   }
 
   success(msg: string): void {
+    this.clear();
     this.show('Success', msg, { className: 'bg-success text-light' });
   }
   
   warring(msg: string) {
+    this.clear();
     this.toasts.push({ textOrTpl: msg, className: 'bg-warning text-light' });
   }
 
   danger(msg: string) {
+    this.clear();
     this.toasts.push({ textOrTpl: msg, className: 'bg-danger text-light' });
   }
 
   error(msg: string): void {
+    this.clear();
     this.show('Error', msg, { className: 'bg-danger text-light' });
   }
 
   info(msg: string): void {
+    this.clear();
     this.show('Info', msg, { className: 'bg-info text-light' });
+  }
+
+  clear() {
+    this.toasts.splice(0, this.toasts.length);
   }
 }

@@ -8,7 +8,7 @@
              <div class="card-body-icon">
               <fa-icon [icon]="['fas', 'users']" />
              </div>
-             <div class="mr-5"><b>{{ userChannelCount }}</b> Channels</div>
+             <div class="mr-5"><b>{{ countChannel }}</b> Channels</div>
           </div>
           <a class="card-footer text-white clearfix small z-1">
           <span class="float-left">View Details</span>
@@ -96,7 +96,7 @@
           <h6>My Channels</h6>
         </div>
       </div>
-      <app-channels-card [channelList]="channelData" />
+      <app-channels-card [channelList]="channelList" />
     </div>
   </div>
 </div>

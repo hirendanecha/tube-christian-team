@@ -2,11 +2,16 @@
   <h5 class="mb-8">Notifications</h5>
   <div class="dropdown-divider mb-2"></div>
   <ng-container *ngFor="let notification of sharedService.notificationList">
-    <div class="single-box p-2" *ngIf="notification.isRead === 'N'">
-      <a [href]="'https://christian.team/post/' + notification.postId" target="_blank"
+    <div class="single-box p-2" *ngIf="notification else noNotification">
+      <!-- <a [href]="'https://christian.team/post/' + notification.postId" target="_blank"
         class="d-flex justify-content-between align-items-center"
         (click)="readUnreadNotification(notification.postId, notification.id)"
-      >
+      > -->
+      <a
+      class="d-flex justify-content-between align-items-center"
+      (click)="readUnreadNotification(notification.postId, notification)"
+      [href]="notification.postId ? 'https://christian.team/post/' + notification.postId : 'https://christian.team/profile-chats'"
+    >
         <div class="left-item position-relative d-inline-flex gap-3">
           <div class="avatar position-relative d-inline-flex">
             <img
@@ -39,9 +44,9 @@
     </div>
   </ng-container>
 
-  <ng-container *ngIf="!sharedService.notificationList.length">
+  <ng-template #noNotification>
     <span>No notification</span>
-  </ng-container>
+  </ng-template>
 </div>
 <div class="dropdown-divider"></div>
 <div

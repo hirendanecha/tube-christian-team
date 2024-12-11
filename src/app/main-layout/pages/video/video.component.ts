@@ -3,6 +3,7 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
+  HostListener,
   Inject,
   OnChanges,
   OnInit,
@@ -70,10 +71,12 @@ export class VideoComponent implements OnInit, OnChanges {
   player: any;
   // webUrl = environment.webUrl;
   hasMoreData = false;
+  isLoading = false;
   activePage: number;
   commentMessageTags = [];
   commentMessageInputValue: string = '';
   isTheaterModeOn: boolean = false;
+  profilePicName: string = '';
   constructor(
     private commonService: CommonService,
     private router: Router,
@@ -88,12 +91,13 @@ export class VideoComponent implements OnInit, OnChanges {
     private seoService: SeoService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
-    this.profileId = JSON.parse(this.authService.getUserData() as any)?.profileId || null;
+    this.authService.loggedInUser$.subscribe((data) => {
+      this.profileId = data?.profileId || null;
+      this.profilePicName = data?.ProfilePicName || null;
+    });
     if (isPlatformBrowser(this.platformId)) {
-
       this.route.params.subscribe((params) => {
         const id = +params['id'];
-        console.log('>>>>>', id);
         if (id) {
           this.getPostDetailsById(id);
           // this.videoDetails = history?.state?.data;
@@ -108,14 +112,29 @@ export class VideoComponent implements OnInit, OnChanges {
 
     // });
   }
-  ngOnChanges(changes: SimpleChanges): void { }
+  ngOnChanges(changes: SimpleChanges): void {}
 
   ngOnInit(): void {
     // this.getMyChannels();
     if (isPlatformBrowser(this.platformId)) {
       this.getPostVideosById();
-      this.viewComments(this.videoDetails?.id);
+      // this.viewComments(this.videoDetails?.id);
       this.socketListner();
+    }
+  }
+
+  @HostListener('window:scroll', ['$event'])
+  onScroll(event: Event) {
+    const scrollY = window.scrollY;
+    const windowHeight = window.innerHeight;
+    const documentHeight = document.documentElement.scrollHeight;
+    const thresholdFraction = 0.2;
+    const threshold = windowHeight * thresholdFraction;
+
+    if (scrollY + windowHeight >= documentHeight - threshold) {
+      if (!this.isLoading && !this.hasMoreData) {
+        this.loadMore();
+      }
     }
   }
 
@@ -141,25 +160,30 @@ export class VideoComponent implements OnInit, OnChanges {
   }
 
   getPostDetailsById(id): void {
-    this.commonService.get(`${this.apiUrl}/post/${id}?profileId=${this.profileId}`).subscribe({
-      next: (res) => {
-        this.spinner.hide();
-        // console.log(res);
-        this.videoDetails = res[0];
+    if (!this.profileId) {
+      this.profileId = +localStorage.getItem('profileId');
+    }
+    this.commonService
+      .get(`${this.apiUrl}/post/${id}?profileId=${this.profileId}`)
+      .subscribe({
+        next: (res) => {
+          this.spinner.hide();
+          // console.log(res);
+          this.videoDetails = res[0];
 
-        const data = {
+          const data = {
           title: `Christian.tube ${this.videoDetails.albumname}`,
-          description: this.videoDetails.postdescription,
-        };
-        this.seoService.updateSeoMetaData(data);
-        this.playvideo(this.videoDetails.id);
-        this.viewComments(this.videoDetails.id);
-      },
-      error: (error) => {
-        this.spinner.hide();
-        console.log(error);
-      },
-    });
+            description: this.videoDetails.postdescription,
+          };
+          this.seoService.updateSeoMetaData(data);
+          this.playvideo(this.videoDetails.id);
+          this.viewComments(this.videoDetails.id);
+        },
+        error: (error) => {
+          this.spinner.hide();
+          console.log(error);
+        },
+      });
   }
 
   getPostVideosById(): void {
@@ -181,12 +205,14 @@ export class VideoComponent implements OnInit, OnChanges {
 
   loadMore() {
     this.activePage++;
+    this.isLoading = true;
     // this.spinner.show();
     this.commonService
       .post(`${this.apiUrl}/posts`, { size: 15, page: this.activePage })
       .subscribe({
         next: (res: any) => {
           this.spinner.hide();
+          this.isLoading = false;
           if (res?.data?.length > 0) {
             this.videoList = this.videoList.concat(res.data);
           } else {
@@ -195,6 +221,7 @@ export class VideoComponent implements OnInit, OnChanges {
         },
         error: (error) => {
           this.spinner.hide();
+          this.isLoading = false;
           console.log(error);
         },
       });
@@ -221,7 +248,7 @@ export class VideoComponent implements OnInit, OnChanges {
           viewability: false,
         },
         playbackRateControls: true,
-        playbackRates: [0.25, 0.50, , 0.75, 1, 1.25, 1.75, 2],
+        playbackRates: [0.25, 0.5, , 0.75, 1, 1.25, 1.75, 2],
         controls: true,
         events: {
           onError: function (e: any) {
@@ -234,20 +261,26 @@ export class VideoComponent implements OnInit, OnChanges {
         ...config,
       });
       const isPhoneView = window.innerWidth <= 768;
-      if (!isPhoneView) {    
+      if (!isPhoneView) {
         const buttonId = 'theater-mode-button';
         const iconPath = 'assets/img/theater-mode.png';
         const tooltipText = 'Theater Mode';
-        jwplayer('jwVideo-' + id).addButton(iconPath, tooltipText, this.buttonClickAction.bind(this), buttonId);
+        jwplayer('jwVideo-' + id).addButton(
+          iconPath,
+          tooltipText,
+          this.buttonClickAction.bind(this),
+          buttonId
+        );
       }
       this.player.load();
       console.log('>>>>>', this.player);
-  
+
       if (this.player) clearInterval(i);
     }, 1000);
   }
+
   buttonClickAction() {
-    this.isTheaterModeOn = !this.isTheaterModeOn
+    this.isTheaterModeOn = !this.isTheaterModeOn;
   }
 
   onPostFileSelect(event: any, type: string): void {
@@ -360,7 +393,7 @@ export class VideoComponent implements OnInit, OnChanges {
         }
       },
       error: (error) => {
-        console.log(error);;
+        console.log(error);
       },
       complete: () => {
         this.isCommentsLoader = false;
@@ -551,7 +584,7 @@ export class VideoComponent implements OnInit, OnChanges {
   // }
 
   editComment(comment): void {
-    if (comment.parentCommentId) {
+    if (comment) {
       const modalRef = this.modalService.open(ReplyCommentModalComponent, {
         centered: true,
       });
@@ -630,7 +663,7 @@ export class VideoComponent implements OnInit, OnChanges {
         if (res) {
           this.userSearchList = res.channels;
           this.userSearchNgbDropdown.open();
-          console.log(res);
+          // console.log(res);
         } else {
           this.userSearchList = [];
           this.userSearchNgbDropdown.close();
@@ -646,7 +679,8 @@ export class VideoComponent implements OnInit, OnChanges {
 
   openProfile(Id): void {
     const url = `https://tube.christian.team/channel/${Id}`;
-    window.open(url, '_blank');
+    // window.open(url, '_blank');
+    window.location.href = url;
   }
 
   onTagUserInputChangeEvent(data: any): void {
@@ -727,6 +761,7 @@ export class VideoComponent implements OnInit, OnChanges {
     div.innerHTML = html;
     return div.innerText;
   }
+
   shareOnNF(post: any) {
     const modalRef = this.modalService.open(SharePostModalComponent, {
       centered: true,
@@ -737,7 +772,7 @@ export class VideoComponent implements OnInit, OnChanges {
     modalRef.componentInstance.post = post;
     modalRef.result.then((res) => {
       if (res.profileid) {
-        console.log(res);
+        // console.log(res);
         this.socketService?.createOrEditPost(res);
         this.toastService.success('Post share successfully');
       } else {
@@ -747,6 +782,7 @@ export class VideoComponent implements OnInit, OnChanges {
       }
     });
   }
+
   channelSubscribe(subscribe) {
     const data = {
       ProfileId: this.profileId,
@@ -756,8 +792,9 @@ export class VideoComponent implements OnInit, OnChanges {
     if (!subscribe) {
       this.commonService.subscribeChannel(data).subscribe({
         next: (res: any) => {
-          this.toastService.success(res.message);
-          return this.videoDetails['isSubscribed'] = true;
+          // this.toastService.success(res.message);
+          this.toastService.success('channel unsubscribe successfully');
+          return (this.videoDetails['isSubscribed'] = true);
         },
         error: (error) => {
           console.log(error);
@@ -766,8 +803,9 @@ export class VideoComponent implements OnInit, OnChanges {
     } else {
       this.commonService.unsubscribeChannel(data).subscribe({
         next: (res: any) => {
-          this.toastService.success(res.message);
-          return this.videoDetails['isSubscribed'] = false;
+          // this.toastService.success(res.message);
+          this.toastService.success('channel subscribe successfully');
+          return (this.videoDetails['isSubscribed'] = false);
         },
         error: (error) => {
           console.log(error);

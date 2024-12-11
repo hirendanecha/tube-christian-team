@@ -1,4 +1,4 @@
-<ng-container *ngFor="let video of videoList">
+<ng-container *ngFor="let video of videoList; let i = index; trackBy: trackByPostId">
   <a
     class="video-card video-card-list cursor"
     [routerLink]="['/video', video.id]"
@@ -24,7 +24,7 @@
     <div class="video-card-body">
       <div class="video-title text-dark">
         <div
-          [ngbTooltip]="video.albumname"
+          [title]="video.albumname"
           placement="bottom"
           class="video-page font-16-px"
         >
@@ -49,4 +49,20 @@
       </div>
     </div>
   </a>
+
+  <ng-container *ngIf="(i + 1) % 5 === 0 && advertisementDataList?.length">
+    <ng-container *ngFor="let ad of advertisementDataList | randomAdvertisementUrl: i">
+      <a [attr.href]="ad.link ? ad.link : null" [attr.target]="ad.link ? '_blank' : null"
+      >
+      <div class="img-preview rounded-3 w-100 h-100 advertisement-section my-2" [ngStyle]="{'background-image' : 'url(' + ad.imageUrl + ')'}">
+        <img
+          loading="lazy"
+          data-src="{{ ad.imageUrl }}"
+          class="w-100 h-100 rounded-3 image-render"
+          alt="advertisement"
+        />
+      </div>
+      </a>
+    </ng-container>        
+  </ng-container>
 </ng-container>

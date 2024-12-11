@@ -21,7 +21,9 @@ export class SingleChannelComponent implements OnInit {
     private router: Router
   ) {
     this.channelDetails = history.state.data;
-    this.useDetails = JSON.parse(this.authService.getUserData() as any);
+    this.authService.loggedInUser$.subscribe((data) => {
+      this.useDetails = data;
+    });
     if (this.useDetails?.MediaApproved === 1) {
      return 
     }else{

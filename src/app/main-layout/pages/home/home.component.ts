@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, HostListener, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { AuthService } from 'src/app/@shared/services/auth.service';
@@ -22,6 +22,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
   activePage = 0;
   activeFeturePage = 0;
   hasMoreData = false;
+  isRecommendedLoading = false;
+  isLoading = false;
   hasRecommendedData = false;
   channelName = '';
   profileId: number;
@@ -36,20 +38,22 @@ export class HomeComponent implements OnInit, AfterViewInit {
   notificationId: number;
   searchText: string;
   advertisementDataList: any = [];
+  userData: any;
 
   constructor(
-
     private route: ActivatedRoute,
     private commonService: CommonService,
     private spinner: NgxSpinnerService,
     private socketService: SocketService,
     private authService: AuthService,
     private shareService: ShareService,
-    // private seoService: SeoService,
-    private seoService:SeoService,
+    private seoService: SeoService
   ) {
-    this.profileId = JSON.parse(this.authService.getUserData() as any)?.profileId;
-    this.userId = JSON.parse(this.authService.getUserData() as any)?.Id;
+    this.authService.loggedInUser$.subscribe((data) => {
+      this.userData = data;
+    });
+    this.profileId = this.userData?.profileId;
+    this.userId = this.userData?.UserID;
     this.channelId = +localStorage.getItem('channelId');
 
     this.route.paramMap.subscribe((paramMap) => {
@@ -65,9 +69,10 @@ export class HomeComponent implements OnInit, AfterViewInit {
           this.searchPostData = null;
           this.searchResults = null;
         }
-      } else {
-        this.getChannelByUserId(this.userId);
       }
+      // else if (this.userId) {
+      //   this.getChannelByUserId(this.userId);
+      // }
     });
     const data = {
       title: `Christian.tube`,
@@ -77,8 +82,28 @@ export class HomeComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
-    this.recommendedLoadMore();
+    if (!this.channelName) {
+      this.recommendedLoadMore();
+    }
     this.getadvertizements();
+  }
+
+  @HostListener('window:scroll', ['$event'])
+  onScroll(event: Event) {
+    const scrollY = window.scrollY;
+    const windowHeight = window.innerHeight;
+    const documentHeight = document.documentElement.scrollHeight;
+    const thresholdFraction = 0.2;
+    const threshold = windowHeight * thresholdFraction;
+
+    if (scrollY + windowHeight >= documentHeight - threshold) {
+      if (!this.isRecommendedLoading && !this.hasRecommendedData && !this.channelName) {
+        this.recommendedLoadMore();
+      }
+      if (!this.isLoading && !this.hasMoreData && this.channelData?.id) {
+        this.loadMore();
+      }
+    }
   }
 
   ngAfterViewInit(): void {
@@ -91,12 +116,12 @@ export class HomeComponent implements OnInit, AfterViewInit {
       console.log(data);
       if (data) {
         this.notificationId = data.id;
-        this.shareService.isNotify = true;
+        this.shareService.setNotify(true);
         if (this.notificationId) {
           this.commonService.getNotification(this.notificationId).subscribe({
             next: (res) => {
-              console.log(res);
-              localStorage.setItem('isRead', res.data[0]?.isRead);
+              // console.log(res);
+              // localStorage.setItem('isRead', res.data[0]?.isRead);
             },
             error: (error) => {
               console.log(error);
@@ -105,10 +130,16 @@ export class HomeComponent implements OnInit, AfterViewInit {
         }
       }
     });
-    const isRead = localStorage.getItem('isRead');
-    if (isRead === 'N') {
-      this.shareService.isNotify = true;
-    }
+    this.socketService?.socket?.on('logout-check', (res) => {
+      if (
+        res.profileId === this.profileId &&
+        res.token === this.authService.getToken()
+      ) {
+        localStorage.clear();
+        sessionStorage.clear();
+        this.shareService.updateMediaApproved(false);
+      }
+    });
   }
 
   getChannelByUserId(value): void {
@@ -120,7 +151,9 @@ export class HomeComponent implements OnInit, AfterViewInit {
           // localStorage.setItem('channelId', this.channelData.id);
           // console.log(this.channelData);
           const data = {
-            title: `Christian.tube ${this.channelData?.firstname}`,
+            title: `Christian.team ${
+              this.channelData?.firstname ? this.channelData.firstname : ''
+            }`,
             url: `${location.href}`,
             description: '',
           };
@@ -135,13 +168,17 @@ export class HomeComponent implements OnInit, AfterViewInit {
   }
 
   getChannelDetails(value): void {
+    this.isLoading = true;
     this.commonService.get(`${this.apiUrl}${value}`).subscribe({
       next: (res) => {
         // console.log(res.data);
+        this.isLoading = false;
         if (res.data.length) {
           this.channelData = res.data[0];
           const data = {
-            title: `Christian.tube ${this.channelData.firstname}`,
+            title: `Christian.team ${
+              this.channelData?.firstname ? this.channelData.firstname : ''
+            }`,
             url: `${location.href}`,
             description: '',
           };
@@ -152,6 +189,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
       },
       error: (error) => {
         console.log(error);
+        this.isLoading = false;
       },
     });
   }
@@ -172,12 +210,13 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   getPostVideosById(): void {
     this.activePage = 0;
-    if (this.channelData?.profileid) {
+    if (this.channelData?.id) {
       this.loadMore();
     }
   }
 
   loadMore() {
+    this.isLoading = true;
     this.activePage++;
     this.spinner.show();
     this.commonService
@@ -189,6 +228,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
       .subscribe({
         next: (res: any) => {
           this.spinner.hide();
+          this.isLoading = false;
           if (res?.data?.length > 0) {
             this.videoList = this.videoList.concat(res.data);
             this.hasMoreData = false;
@@ -197,6 +237,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
           }
         },
         error: (error) => {
+          this.isLoading = false;
           this.spinner.hide();
           console.log(error);
         },
@@ -206,6 +247,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
   recommendedLoadMore() {
     this.activeFeturePage++;
     this.spinner.show();
+    this.isRecommendedLoading = true;
     this.commonService
       .post(`${this.apiUrl}posts`, {
         id: this.channelData?.id,
@@ -214,6 +256,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
       })
       .subscribe({
         next: (res: any) => {
+          this.isRecommendedLoading = false;
           this.spinner.hide();
           if (res?.data?.length > 0) {
             this.recommendedVideoList = this.recommendedVideoList.concat(
@@ -225,6 +268,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
           }
         },
         error: (error) => {
+          this.isRecommendedLoading = false;
           this.spinner.hide();
           console.log(error);
         },
@@ -238,9 +282,6 @@ export class HomeComponent implements OnInit, AfterViewInit {
   onSearchData(searchText: string) {
     console.log(searchText);
     this.searchText = searchText;
-    
-
-
 
     this.spinner.show();
     this.commonService
@@ -269,6 +310,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.searchPostData = null;
     this.searchResults = null;
   }
+
   getadvertizements(): void {
     this.commonService.getAdvertisement().subscribe({
       next: (res: any) => {

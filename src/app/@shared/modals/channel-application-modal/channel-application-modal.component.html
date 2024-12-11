@@ -1,0 +1,190 @@
+<div class="modal-header">
+  <h5 class="modal-title">Channel Application</h5>
+  <fa-icon
+    class="font-28-px cursor"
+    [icon]="['fas', 'xmark']"
+    [fixedWidth]="true"
+    (click)="activateModal.close()"
+  />
+</div>
+
+<div class="modal-body d-flex flex-column">
+  <div class="mb-3">
+    Christian Tube only presents legitamit independent media. 
+    If you are independent media and want to reach a new audience and have Christian.team promote you, 
+    please complete following information:
+  </div>
+  <form [formGroup]="userForm">
+    <div class="row">
+      <div class="col-sm-6">
+        <div class="form-group">
+          <label class="control-label"
+            >Username <span class="text-danger">*</span></label
+          >
+          <input
+            class="form-control border-form-control"
+            formControlName="username"
+            type="text"
+          />
+          <div
+            class="srv-validation-message text-danger"
+            *ngIf="
+              userForm?.get('username')?.invalid &&
+              userForm?.get('username')?.touched
+            "
+          >
+            Username field is required.
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-6">
+        <div class="form-group">
+          <label class="control-label"
+            >Email<span class="text-danger">*</span></label
+          >
+          <input
+            class="form-control border-form-control"
+            formControlName="email"
+            type="text"
+          />
+          <div
+            class="srv-validation-message text-danger"
+            *ngIf="
+              userForm?.get('email')?.invalid &&
+              userForm?.get('email')?.touched &&
+              userForm.get('email').hasError('required')
+            "
+          >
+            Email field is required.
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-12">
+        <div class="form-group">
+          <label class="control-label"
+            >Channel Name <span class="text-danger">*</span></label
+          >
+          <input
+            class="form-control border-form-control"
+            formControlName="channelName"
+            type="text"
+          />
+          <div
+            class="srv-validation-message text-danger"
+            *ngIf="
+              userForm?.get('channelName')?.invalid &&
+              userForm?.get('channelName')?.touched
+            "
+          >
+            Channel name field is required.
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-12">
+        <div class="form-group">
+          <label class="control-label"
+            >Topics Covered<span class="text-danger">*</span></label
+          >
+          <input
+            class="form-control border-form-control"
+            formControlName="topics_covered"
+            type="text"
+            placeholder="www.sample.com"
+          />
+          <div
+            class="srv-validation-message text-danger"
+            *ngIf="
+              userForm?.get('topic_covered')?.invalid &&
+              userForm?.get('topic_covered')?.touched
+            "
+          >
+            Topics covered field is required.
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="py-2">What other video platforms are you on?</div>
+    <div class="row">
+      <div class="col-12">
+        <div class="form-group">
+          <label class="control-label"
+            >Bit Chute Url: <span class="text-danger">(Url Only)</span></label
+          >
+          <input
+            class="form-control border-form-control"
+            formControlName="bitChuteUrl"
+            type="text"
+            placeholder="www.sample.com"
+          />
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-12">
+        <div class="form-group">
+          <label class="control-label"
+            >Rumble Url: <span class="text-danger">(Url Only)</span></label
+          >
+          <input
+            class="form-control border-form-control"
+            formControlName="rumbleUrl"
+            type="text"
+            placeholder="www.sample.com"
+          />
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-12">
+        <div class="form-group">
+          <label class="control-label"
+            >Youtube Url: <span class="text-danger">(Url Only)</span></label
+          >
+          <input
+            class="form-control border-form-control"
+            formControlName="youtubeUrl"
+            type="text"
+            placeholder="www.sample.com"
+          />
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-12">
+        <div class="form-group">
+          <label class="control-label"
+            >Other Url: <span class="text-danger">(Url Only)</span></label
+          >
+          <input
+            class="form-control border-form-control"
+            formControlName="otherUrl"
+            type="text"
+            placeholder="www.sample.com"
+          />
+        </div>
+      </div>
+    </div>
+  </form>
+  <div class="mt-2">Thank you! Well get with you shortly.</div>
+</div>
+
+<div class="modal-footer">
+  <button
+    class="btn btn-danger text-white"
+    (click)="activateModal.close(); resetForm()"
+  >
+    Cancel
+  </button>
+  <button
+    type="submit"
+    title="Start Conference"
+    class="btn btn-success text-white"
+    (click)="saveChanges()"
+  >
+    Submit
+  </button>
+</div>

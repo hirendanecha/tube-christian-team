@@ -20,11 +20,12 @@ export class MobileMenuComponent implements OnInit {
     private router: Router,
     public authService: AuthService
   ) {
-    this.useDetails = JSON.parse(this.authService.getUserData() as any);
+    this.authService.loggedInUser$.subscribe((data) => {
+      this.useDetails = data;
+    });
   }
   ngOnInit(): void {
     this.channelId = +localStorage.getItem('channelId');
-    this.isUserMediaApproved = this.hasChannelId;
   }
 
   openVideoUploadPopUp(): void {
@@ -38,9 +39,6 @@ export class MobileMenuComponent implements OnInit {
     modalRef.result.then((res) => {
       // console.log(res);
     });
-  }
-  hasChannelId(): boolean {
-    return this.channelId !== null && this.channelId !== undefined;
   }
 
   getmyChannel() {

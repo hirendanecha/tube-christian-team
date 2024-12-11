@@ -13,7 +13,7 @@
     <div>
       <img
         loading="lazy"
-        data-src="{{ authService?.userDetails?.ProfilePicName }}"
+        data-src="{{ profilePicName }}"
         onerror="this.onerror=null;this.src='/assets/images/avtar/placeholder-user.png';"
         class="w-56-px h-56-px rounded-4 me-2"
         alt="icon"
@@ -42,7 +42,7 @@
 
   <button
     type="button"
-    class="btn btn-sm btn-secondary"
+    class="btn btn-sm btn-success"
     (click)="submit()"
     [disabled]="!sharePostData?.parentPostId"
   >

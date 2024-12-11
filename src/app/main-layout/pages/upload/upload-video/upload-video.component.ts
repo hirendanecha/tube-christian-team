@@ -37,8 +37,9 @@ export class UploadVideoComponent {
     private spinner: NgxSpinnerService,
     private router: Router
   ) {
-    const userData = JSON.parse(this.authService.getUserData() as any)
-    this.postData.profileid = userData.profileId
+    this.authService.loggedInUser$.subscribe((data) => {
+      this.postData.profileid = data?.profileId;
+    });
     if (history.state.data) {
       this.uploadVideoData = { ...history.state.data };
       this.videoSize = this.uploadVideoData?.file?.size / 1024 / 1024;

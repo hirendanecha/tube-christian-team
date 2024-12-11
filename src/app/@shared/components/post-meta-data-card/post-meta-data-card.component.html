@@ -1,12 +1,12 @@
 <a
-  class="post-description mdtxt pt-0 pb-1 text-start"
+  class="post-description mdtxt pt-0 pb-1 text-start text-blue"
   [href]="post.metalink"
   target="_blank"
   *ngIf="post?.metalink"
   >{{ post.metalink }}</a
 >
 
-<div class="border rounded-3 mb-3 w-400-px" *ngIf="post?.metaimage">
+<div class="border rounded-3 mb-3 meta-card" *ngIf="post?.metaimage">
   <a [href]="post.metalink" target="_blank" class="post-img w-100">
     <img
       loading="lazy"

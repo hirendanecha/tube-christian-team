@@ -2,14 +2,8 @@ import { Injectable } from '@angular/core';
 import {
   HttpRequest,
   HttpHandler,
-  HttpEvent,
   HttpInterceptor,
 } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError, map, finalize } from 'rxjs/operators';
-import { Router } from '@angular/router';
-import { AuthService } from '../services/auth.service';
-import { ToastService } from '../services/toast.service';
 
 @Injectable()
 export class HeaderInterceptor implements HttpInterceptor {

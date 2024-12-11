@@ -9,14 +9,17 @@
   <li class="nav-item" routerLinkActive="active">
     <a class="nav-link" routerLink="/home">
       <fa-icon [icon]="['fas', 'home']" [fixedWidth]="true" />
-      <span>Home</span>
+      <span>Featured Videos</span>
     </a>
   </li>
-  <li
-    class="nav-item"
-    routerLinkActive="active"
-    *ngIf="isUserMediaApproved()"
-  >
+  <li class="nav-item cursor" routerLinkActive="active">
+    <a class="nav-link" (click)="openApplicationForm()">
+      <fa-icon [icon]="['fas', 'note-sticky']" [fixedWidth]="true" />
+      <span>Channel Application</span>
+    </a>
+  </li>
+
+  <li class="nav-item" routerLinkActive="active" *ngIf="isUserMediaApproved()">
     <a class="nav-link" routerLink="/channels">
       <fa-icon [icon]="['fas', 'user']" [fixedWidth]="true" />
       <span>My Channel</span>
@@ -24,17 +27,13 @@
   </li>
 
   <!-- <li class="nav-item" routerLinkActive="active">
-    <a class="nav-link" routerLink="/history-page">
-    <fa-icon [icon]="['fas', 'history']" [fixedWidth]="true" />
-    <span>History Page</span>
-    </a>
- </li> -->
+      <a class="nav-link" routerLink="/history-page">
+      <fa-icon [icon]="['fas', 'history']" [fixedWidth]="true" />
+      <span>History Page</span>
+      </a>
+   </li> -->
 
-  <li
-    class="nav-item"
-    routerLinkActive="active"
-    *ngIf="isUserMediaApproved()"
-  >
+  <li class="nav-item" routerLinkActive="active" *ngIf="isUserMediaApproved()">
     <a class="nav-link" routerLink="/upload/details">
       <fa-icon [icon]="['fas', 'cloud-upload']" [fixedWidth]="true" />
       <span>Upload Details</span>
@@ -60,11 +59,11 @@
           </a>
         </div>
         <!-- <div (click)="navigateToChannel(channel)">
-          <img class="img-fluid" [src]="channel.profile_pic_name" alt=""
+            <img class="img-fluid" [src]="channel.profile_pic_name" alt=""
           onerror="this.onerror=null;this.src='assets/default-profile.png';"
-          >
-          {{ channel.firstname }}
-        </div> -->
+            >
+            {{ channel.firstname }}
+          </div> -->
       </li>
     </ul>
   </li>

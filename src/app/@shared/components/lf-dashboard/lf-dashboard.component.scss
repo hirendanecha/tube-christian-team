@@ -36,6 +36,9 @@
       outline: none !important;
     }
   }
+  .search-input {
+    border: 1px solid #2e3065;
+  }
   ::ng-deep {
     .c-searchbar .input-group {
       flex-wrap: unset;

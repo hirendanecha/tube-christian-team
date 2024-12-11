@@ -1,9 +1,16 @@
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { debounceTime, fromEvent } from 'rxjs';
 import { AuthService } from 'src/app/@shared/services/auth.service';
 import { CommonService } from 'src/app/@shared/services/common.service';
+import { ShareService } from 'src/app/@shared/services/share.service';
 import { ToastService } from 'src/app/@shared/services/toast.service';
 import { environment } from 'src/environments/environment';
 
@@ -44,10 +51,8 @@ export class EditProfileComponent implements OnInit, AfterViewInit {
     public authService: AuthService,
     private commonService: CommonService,
     private toasterService: ToastService,
-    private spinner: NgxSpinnerService
+    private spinner: NgxSpinnerService,
   ) {
-    this.useDetails = JSON.parse(this.authService.getUserData() as any);
-    console.log(this.useDetails);
   }
   ngOnInit(): void {
     this.getAllCountries();
@@ -65,6 +70,9 @@ export class EditProfileComponent implements OnInit, AfterViewInit {
   }
 
   getUserDetails(): void {
+    this.authService.loggedInUser$.subscribe((user: any) => {
+      this.useDetails = user;
+    });
     const data = {
       FirstName: this.useDetails?.FirstName,
       LastName: this.useDetails?.LastName,
@@ -100,7 +108,6 @@ export class EditProfileComponent implements OnInit, AfterViewInit {
     } else {
       this.spinner.hide();
       this.toasterService.danger('something went wrong!');
-
     }
   }
 

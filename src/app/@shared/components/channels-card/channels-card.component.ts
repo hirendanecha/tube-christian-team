@@ -18,6 +18,7 @@ export class ChannelsCardComponent implements OnInit {
   openChannelDetailPage(channel: any): void {
     this.router.navigate([`channel/${channel.unique_link}`], {
       state: { data: channel }
-    }).then(()=>{window.location.reload()})
+    })
+    // .then(()=>{window.location.reload()})
   }
 }
