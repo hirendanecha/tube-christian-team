@@ -41,7 +41,7 @@
     min-height: 100vh;
     max-height: 100vh;
     background-color: #000000ab;
-    z-index: 999;
+    z-index: 1031;
     transition: 0.3s ease-in-out;
 
     &:hover {
@@ -76,6 +76,7 @@
       position: sticky;
       max-width: calc(100vw - 100px);
       max-height: 100vh;
+      height: 100%;
       z-index: -1;
       // height: 100%;
       // left: 0px;
@@ -93,9 +94,9 @@
   }
 }
 
-::ng-deep .c-icon-color {
-  svg path {
-    fill: var(--secondary-color) !important;
+::ng-deep {
+  .c-icon-color svg path {
+    fill: #fff !important;
   }
 }
 

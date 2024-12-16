@@ -168,4 +168,17 @@ export class AuthService {
       `${environment.apiUrl}customers/verify-token/${token}`
     );
   }
+
+  logOut(): void {
+    this.cookieService.delete('auth-user', '/', environment.domain);
+    this.cookieService.deleteAll();
+    localStorage.clear();
+    sessionStorage.clear();
+    location.href = environment.logoutUrl;
+    // const url = environment.apiUrl + 'customers/logout';
+    // this.commonService.get(url).subscribe({
+    //   next: (res) => {
+    //   },
+    // });
+  }
 }

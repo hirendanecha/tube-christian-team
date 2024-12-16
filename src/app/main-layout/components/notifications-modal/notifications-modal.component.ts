@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { NgbActiveModal, NgbActiveOffcanvas } from '@ng-bootstrap/ng-bootstrap';
 import { ShareService } from 'src/app/@shared/services/share.service';
 import { CommonService } from 'src/app/@shared/services/common.service';
+import { SocketService } from 'src/app/@shared/services/socket.service';
 
 @Component({
   selector: 'app-notifications-modal',
@@ -15,11 +16,13 @@ export class NotificationsModalComponent implements OnInit {
     public sharedService: ShareService,
     private commonService: CommonService,
     private activeModal: NgbActiveModal,
-    private activeOffcanvas: NgbActiveOffcanvas
+    private activeOffcanvas: NgbActiveOffcanvas,
+    private socketService: SocketService,
   ) {}
 
   ngOnInit(): void {
     this.sharedService.getNotificationList(this.profileId);
+    this.socketService.readNotification({ profileId: this.profileId }, (data) => { });
   }
 
   readUnreadNotification(postId: string, notification): void {

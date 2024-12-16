@@ -77,6 +77,8 @@ export class VideoComponent implements OnInit, OnChanges {
   commentMessageInputValue: string = '';
   isTheaterModeOn: boolean = false;
   profilePicName: string = '';
+  showFullDescMap: { [commentId: number]: boolean } = {};
+
   constructor(
     private commonService: CommonService,
     private router: Router,
@@ -847,5 +849,13 @@ export class VideoComponent implements OnInit, OnChanges {
     this.socketService.likeFeedPost(data, (res) => {
       return;
     });
+  }
+
+  showFullDescription(type?, commentId?): void {
+    if (type === 'comment') {
+      this.showFullDescMap[commentId] = !this.showFullDescMap[commentId];
+    } else if (type === 'reply') {
+      this.showFullDescMap[commentId] = !this.showFullDescMap[commentId];
+    }
   }
 }

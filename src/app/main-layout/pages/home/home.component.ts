@@ -6,6 +6,7 @@ import { CommonService } from 'src/app/@shared/services/common.service';
 import { SeoService } from 'src/app/@shared/services/seo.service';
 import { ShareService } from 'src/app/@shared/services/share.service';
 import { SocketService } from 'src/app/@shared/services/socket.service';
+import { ToastService } from 'src/app/@shared/services/toast.service';
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -47,6 +48,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     private socketService: SocketService,
     private authService: AuthService,
     private shareService: ShareService,
+    private toastService: ToastService,
     private seoService: SeoService
   ) {
     this.authService.loggedInUser$.subscribe((data) => {
@@ -115,6 +117,10 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.socketService?.socket?.on('notification', (data: any) => {
       console.log(data);
       if (data) {
+        if (data.actionType === 'S') {
+          this.toastService.danger(data?.notificationDesc);
+          this.authService.logOut();
+        }
         this.notificationId = data.id;
         this.shareService.setNotify(true);
         if (this.notificationId) {

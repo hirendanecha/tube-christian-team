@@ -120,7 +120,7 @@
                         <small
                           >Published on
                           {{
-                            videoDetails?.created | date : "MMM dd,yyyy"
+                            videoDetails?.postcreationdate | date : "MMM dd,yyyy"
                           }}</small
                         >
                       </div>
@@ -406,8 +406,20 @@
                           <ng-container *ngIf="comment?.comment">
                             <p
                               class="reviews-members-body"
-                              [innerHTML]="comment?.comment | noSanitize"
+                              [innerHTML]="comment?.comment | stripHtml
+                              | truncate : (showFullDescMap[comment?.id] ? -1 : 450)
+                              | noSanitize"
                             ></p>
+                            <ng-container *ngIf="(comment.comment | stripHtml).length > 450">
+                              <button (click)="showFullDescription('comment', comment?.id)" class="c-text-color fw-bold mb-2">
+                                {{ showFullDescMap[comment?.id] ? "Read Less" : "Read More" }}
+                              </button>
+                            </ng-container>
+                          </ng-container>
+                          <ng-container *ngIf="comment.imageUrl">
+                            <div class="comment-image mb-2">
+                              <app-img-preview [src]="comment.imageUrl" classes="w-100" />
+                            </div>
                           </ng-container>
                           <app-post-meta-data-card [post]="comment" />
                           <div
@@ -570,8 +582,21 @@
                                     <ng-container *ngIf="reply?.comment">
                                       <p
                                         class="reviews-members-body"
-                                        [innerHTML]="reply?.comment | noSanitize"
+                                        [innerHTML]="reply?.comment | stripHtml
+                                        | truncate : (showFullDescMap[reply?.id] ? -1 : 450)
+                                        | noSanitize
+                                        "
                                       ></p>
+                                      <ng-container *ngIf="(reply.comment | stripHtml).length > 450">
+                                        <button (click)="showFullDescription('reply', reply?.id)" class="c-text-color fw-bold mb-2">
+                                          {{ showFullDescMap[reply?.id] ? "Read Less" : "Read More" }}
+                                        </button>
+                                      </ng-container>
+                                      <ng-container *ngIf="reply.imageUrl">
+                                        <div class="comment-image mb-2">
+                                          <app-img-preview [src]="reply.imageUrl" classes="w-100" />
+                                        </div>
+                                      </ng-container>
                                     </ng-container>
                                     <app-post-meta-data-card [post]="reply" />
                                     <div class="reviews-members-footer">
