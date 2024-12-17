@@ -53,9 +53,9 @@ export class HomeComponent implements OnInit, AfterViewInit {
   ) {
     this.authService.loggedInUser$.subscribe((data) => {
       this.userData = data;
+      this.profileId = this.userData?.profileId;
+      this.userId = this.userData?.UserID;
     });
-    this.profileId = this.userData?.profileId;
-    this.userId = this.userData?.UserID;
     this.channelId = +localStorage.getItem('channelId');
 
     this.route.paramMap.subscribe((paramMap) => {
@@ -122,7 +122,9 @@ export class HomeComponent implements OnInit, AfterViewInit {
           this.authService.logOut();
         }
         this.notificationId = data.id;
-        this.shareService.setNotify(true);
+        if (data?.notificationByProfileId !== this.profileId) {
+          this.shareService.setNotify(true);
+        };
         if (this.notificationId) {
           this.commonService.getNotification(this.notificationId).subscribe({
             next: (res) => {
